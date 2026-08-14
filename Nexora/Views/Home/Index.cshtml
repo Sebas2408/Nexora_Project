@@ -1,0 +1,53 @@
+﻿@model List<Nexora.ViewModels.ProductoViewModel>
+@{
+    ViewData["Title"] = "Catálogo - Nexora";
+    var categorias = ViewBag.Categorias as List<Nexora.Models.Categoria>;
+    int? categoriaSeleccionada = ViewBag.CategoriaSeleccionada as int?;
+    string query = ViewBag.Query as string ?? "";
+}
+
+<h1 class="mb-4">Catálogo de productos</h1>
+
+<form method="get" class="mb-3 d-flex">
+    <input type="text" name="q" value="@query" class="form-control me-2" placeholder="Buscar por nombre o marca..." />
+    <button class="btn btn-primary">Buscar</button>
+</form>
+
+<div class="mb-3">
+    <div class="btn-group" role="group">
+        <a class="btn btn-outline-secondary @(categoriaSeleccionada == null ? "active" : "")" href="@Url.Action("Index", "Home")">Todas</a>
+        @foreach (var c in categorias)
+        {
+            <a class="btn btn-outline-secondary @(categoriaSeleccionada == c.Id ? "active" : "")" href="@Url.Action("Index", "Home", new { categoriaId = c.Id })">@c.Nombre</a>
+        }
+    </div>
+</div>
+
+<div class="row">
+    @foreach (var p in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <img src="@(p.ImagenUrl ?? "/images/placeholder.png")" class="card-img-top" style="height:200px;object-fit:contain;" alt="@p.Nombre" />
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">@p.Nombre</h5>
+                    <p class="card-text text-muted">@p.Marca @if(!string.IsNullOrEmpty(p.Modelo)){
+                        <span>- @p.Modelo</span>
+                    }
+                </p>
+                <p class="fw-bold mt-auto">@p.Precio.ToString("C")</p>
+                    <div class="mt-2 d-flex gap-2">
+                        <a class="btn btn-sm btn-outline-primary" href="@Url.Action("Detalle", "Home", new { id = p.Id })">Ver detalle</a>
+
+                        <form asp-controller="Cart" asp-action="Agregar" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productoId" value="@p.Id" />
+                            <input type="hidden" name="cantidad" value="1" />
+                            <button type="submit" class="btn btn-sm btn-success">Agregar al carrito</button>
+                        </form>
+                    </div>
+            </div>
+        </div>
+    </div>
+}
+</div>

@@ -1,0 +1,42 @@
+﻿@model List<Nexora.Models.Producto>
+@{
+    ViewData["Title"] = "Mis productos - Panel Vendedor";
+}
+
+<h1>Mis productos</h1>
+
+<p>
+    <a class="btn btn-primary" href="@Url.Action("Crear", "Vendedor")">Agregar nuevo producto</a>
+</p>
+
+@if (!Model.Any())
+{
+    <p>No tienes productos registrados.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Marca</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Activo</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in Model)
+            {
+                <tr>
+                    <td>@p.Nombre</td>
+                    <td>@p.Marca</td>
+                    <td>@p.Precio.ToString("C")</td>
+                    <td>@p.Stock</td>
+                    <td>@(p.Activo ? "Sí" : "No")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+

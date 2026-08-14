@@ -1,0 +1,52 @@
+﻿@model List<Nexora.ViewModels.CarritoItemViewModel>
+@{
+    ViewData["Title"] = "Carrito de compras";
+    decimal total = ViewBag.Total ?? 0m;
+}
+
+<h1>Carrito de compras</h1>
+
+@if (!Model.Any())
+{
+    <p>El carrito está vacío.</p>
+    <a class="btn btn-primary" href="@Url.Action("Index", "Home")">Seguir comprando</a>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+                <th>Subtotal</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <img src="@(item.ImagenUrl ?? "/images/placeholder.png")" style="height:60px;object-fit:contain;" alt="@item.Nombre" />
+                        <div>@item.Nombre</div>
+                    </td>
+                    <td>@item.Precio.ToString("C")</td>
+                    <td>@item.Cantidad</td>
+                    <td>@item.Subtotal.ToString("C")</td>
+                    <td>
+                        <form asp-controller="Cart" asp-action="Quitar" method="post">
+                            <input type="hidden" name="productoId" value="@item.ProductoId" />
+                            <button type="submit" class="btn btn-sm btn-danger">Quitar</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="d-flex justify-content-end">
+        <h4 class="me-4">Total: @total.ToString("C")</h4>
+        <a class="btn btn-success" href="#">Proceder al pago</a>
+    </div>
+}

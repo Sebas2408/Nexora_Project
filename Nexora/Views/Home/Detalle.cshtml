@@ -1,0 +1,32 @@
+﻿@model Nexora.ViewModels.ProductoViewModel
+@{
+    ViewData["Title"] = "Detalle del producto - " + Model.Nombre;
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <img src="@(Model.ImagenUrl ?? "/images/placeholder.png")" class="img-fluid" alt="@Model.Nombre" style="max-height:450px;object-fit:contain;" />
+    </div>
+    <div class="col-md-6">
+        <h2>@Model.Nombre</h2>
+        <p class="text-muted">@Model.Marca @if(!string.IsNullOrEmpty(Model.Modelo)){
+            <span>- @Model.Modelo</span>
+        }
+    </p>
+    <p class="fw-bold fs-4">@Model.Precio.ToString("C")</p>
+    <p>Stock disponible: <strong>@Model.Stock</strong></p>
+    <p>Tienda: <strong>@Model.NombreTienda</strong></p>
+
+    <h5>Especificaciones</h5>
+    <p>@Model.Especificaciones</p>
+
+    <form asp-controller="Cart" asp-action="Agregar" method="post" class="d-flex align-items-center">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="productoId" value="@Model.Id" />
+        <label class="me-2">Cantidad</label>
+        <input type="number" name="cantidad" value="1" min="1" max="@Model.Stock" class="form-control w-25 me-2" />
+        <button type="submit" class="btn btn-success">Agregar al carrito</button>
+    </form>
+</div>
+</div>
+
