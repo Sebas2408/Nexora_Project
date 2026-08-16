@@ -1,0 +1,102 @@
+@model IEnumerable<Nexora.Models.Producto>
+@{
+    ViewData["Title"] = "Inventario de productos";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/inventario.css" asp-append-version="true" />
+}
+
+<div class="inventory-page">
+    <div class="container-fluid inventory-container">
+        <div class="inventory-card shadow-sm">
+            <div class="inventory-header">
+                <div>
+                    <h1 class="inventory-title">Inventario de productos</h1>
+                    <p class="inventory-subtitle">Gestiona tus publicaciones de productos como vendedor, niveles de precios y recuentos de cumplimiento.</p>
+                </div>
+
+                <a asp-action="Create" class="btn btn-primary inventory-create-btn">+ Añadir producto</a>
+            </div>
+
+            <div class="inventory-toolbar card shadow-sm">
+                <div class="inventory-toolbar-inner">
+                    <div class="input-group inventory-search-group">
+                        <span class="input-group-text inventory-search-icon">⌕</span>
+                        <input type="text" class="form-control inventory-search-input" placeholder="Buscar inventario por SKU, nombre o modelo..." />
+                    </div>
+
+                    <div class="inventory-filters">
+                        <select class="form-select inventory-select">
+                            <option selected>Todas las categorías</option>
+                        </select>
+                        <select class="form-select inventory-select">
+                            <option selected>Todos los estados</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive inventory-table-wrap">
+                <table class="table inventory-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>SKU</th>
+                            <th>Nombre del producto</th>
+                            <th>Marca</th>
+                            <th>Modelo</th>
+                            <th>Especificaciones</th>
+                            <th>Categoría</th>
+                            <th>Stock</th>
+                            <th>Precio</th>
+                            <th>Activo</th>
+                            <th>Vendedor</th>
+                            <th>Garantía</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="inventory-mono">@item.SKU</td>
+                                <td class="inventory-product-name">@item.Nombre</td>
+                                <td>@item.Marca</td>
+                                <td>@item.Modelo</td>
+                                <td class="inventory-specs">@item.Especificaciones</td>
+                                <td>@item.Categoria?.Nombre</td>
+                                <td><span class="inventory-stock">@item.Stock</span></td>
+                                <td class="inventory-price">@item.Precio.ToString("C")</td>
+                                <td>
+                                    @if (item.Activo)
+                                    {
+                                        <span class="badge inventory-badge inventory-badge-active">Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge inventory-badge inventory-badge-inactive">Inactivo</span>
+                                    }
+                                </td>
+                                <td>@(item.Vendedor?.NombreTienda ?? "-")</td>
+                                <td>@item.GarantiaMeses meses</td>
+                                <td class="inventory-actions-cell">
+                                    <div class="inventory-actions">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm inventory-action-btn inventory-action-details" title="Ver" aria-label="Ver">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm inventory-action-btn inventory-action-edit" title="Editar" aria-label="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm inventory-action-btn inventory-action-delete" title="Eliminar" aria-label="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
