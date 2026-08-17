@@ -33,6 +33,10 @@
                     </ul>
 
                     <ul class="navbar-nav ms-auto header-nav header-nav-right">
+                        <li class="nav-item">
+                            <a class="nav-link custom-nav-link" asp-controller="Admin" asp-action="Vendedores">Panel Admin</a>
+                        </li>
+
                         @if (User?.Identity?.IsAuthenticated ?? false)
                         {
                             <li class="nav-item">

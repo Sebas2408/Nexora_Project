@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nexora.Data;
@@ -7,8 +6,6 @@ using Nexora.ViewModels;
 
 namespace Nexora.Controllers
 {
-    // Solo usuarios con rol Administrador pueden acceder a este controlador
-    [Authorize ( Roles = "Administrador" )]
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _db;

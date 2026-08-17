@@ -30,41 +30,23 @@
                     </ul>
 
                     <ul class="navbar-nav ms-auto header-nav header-nav-right">
-                        @if (User?.Identity?.IsAuthenticated ?? false)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link custom-nav-link" asp-area="Identity" asp-page="/Account/Manage/Index">Mi cuenta</a>
-                            </li>
+                        <li class="nav-item">
+                            <a class="nav-link custom-nav-link" asp-area="Identity" asp-page="/Account/Manage/Index">Mi cuenta</a>
+                        </li>
 
-                            @if (User.IsInRole("Vendedor"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link custom-nav-link" asp-controller="Vendedor" asp-action="MisProductos">Panel Vendedor</a>
-                                </li>
-                            }
+                        <li class="nav-item">
+                            <a class="nav-link custom-nav-link" asp-controller="Vendedor" asp-action="MisProductos">Panel Vendedor</a>
+                        </li>
 
-                            @if (User.IsInRole("Administrador"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link custom-nav-link" asp-controller="Admin" asp-action="Vendedores">Panel Admin</a>
-                                </li>
-                            }
+                        <li class="nav-item">
+                            <a class="nav-link custom-nav-link" asp-controller="Admin" asp-action="Vendedores">Panel Admin</a>
+                        </li>
 
-                            <li class="nav-item">
-                                <form class="d-inline" asp-area="Identity" asp-page="/Account/Logout" method="post" id="logoutForm">
-                                    <button type="submit" class="btn btn-link nav-link custom-nav-link logout-button">Salir</button>
-                                </form>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link custom-nav-link auth-link auth-link-secondary" asp-area="Identity" asp-page="/Account/Register">Registrarse</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link custom-nav-link auth-link auth-link-primary" asp-area="Identity" asp-page="/Account/Login">Iniciar sesión</a>
-                            </li>
-                        }
+                        <li class="nav-item">
+                            <form class="d-inline" asp-area="Identity" asp-page="/Account/Logout" method="post" id="logoutForm">
+                                <button type="submit" class="btn btn-link nav-link custom-nav-link logout-button">Salir</button>
+                            </form>
+                        </li>
                     </ul>
                 </div>
             </div>
