@@ -1,0 +1,260 @@
+.admin-page {
+  padding: 0.25rem 0 1.5rem;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.admin-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1f2a44;
+}
+
+.admin-subtitle {
+  margin: 0.15rem 0 0;
+  color: #7c8699;
+  font-size: 0.85rem;
+}
+
+.admin-alert {
+  font-size: 0.85rem;
+  padding: 0.6rem 0.9rem;
+}
+
+/* Tarjetas de estadísticas rápidas */
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.admin-stat-card {
+  background: #fff;
+  border: 1px solid #e2e8f3;
+  border-radius: 0.85rem;
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.admin-stat-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #1f2a44;
+}
+
+.admin-stat-label {
+  font-size: 0.75rem;
+  color: #7c8699;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.admin-stat-active .admin-stat-value {
+  color: #1f9d55;
+}
+
+.admin-stat-inactive .admin-stat-value {
+  color: #d64545;
+}
+
+/* Barra de búsqueda */
+.admin-toolbar {
+  border: 1px solid #e2e8f3;
+  border-radius: 0.85rem;
+  margin-bottom: 1.1rem;
+}
+
+.admin-search-icon {
+  background: #f6f8fc;
+  color: #8a94a8;
+  border-right: 0;
+}
+
+.admin-search-form .form-control {
+  border-left: 0;
+}
+
+/* Tabla */
+.admin-table-card {
+  border: 1px solid #e2e8f3;
+  border-radius: 0.85rem;
+  overflow: hidden;
+}
+
+.admin-table {
+  margin-bottom: 0;
+}
+
+.admin-table thead {
+  background: #f6f8fc;
+}
+
+.admin-table th {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #6f7a90;
+  font-weight: 700;
+  border-bottom: 1px solid #e2e8f3;
+}
+
+.admin-table td {
+  font-size: 0.86rem;
+  color: #22304a;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+/* Badges de estado */
+.admin-badge {
+  display: inline-block;
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.admin-badge-active {
+  background: #e6f7ed;
+  color: #1f9d55;
+}
+
+.admin-badge-inactive {
+  background: #fdeaea;
+  color: #d64545;
+}
+
+/* Estado vacío */
+.admin-empty {
+  text-align: center;
+  padding: 2.5rem 1rem;
+}
+
+.admin-empty-title {
+  font-weight: 700;
+  color: #1f2a44;
+  margin-bottom: 0.25rem;
+}
+
+.admin-empty-text {
+  color: #7c8699;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* Detalle de vendedor */
+.admin-back-link {
+  display: inline-block;
+  margin-bottom: 0.85rem;
+  color: #2b69ff;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.admin-back-link:hover {
+  text-decoration: underline;
+}
+
+.admin-detail-card {
+  border: 1px solid #e2e8f3;
+  border-radius: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.admin-detail-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 0.6rem;
+  object-fit: cover;
+  background: #f6f8fc;
+  border: 1px solid #e2e8f3;
+}
+
+.admin-detail-title {
+  margin: 0 0 0.3rem;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1f2a44;
+}
+
+.admin-detail-toggle {
+  margin-left: auto;
+}
+
+.admin-detail-desc {
+  color: #4a5568;
+  font-size: 0.88rem;
+  margin-bottom: 1rem;
+}
+
+.admin-detail-info {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  border-top: 1px solid #edf1f7;
+  padding-top: 0.9rem;
+}
+
+.admin-detail-label {
+  display: block;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  color: #7c8699;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.15rem;
+}
+
+.admin-detail-value {
+  display: block;
+  font-size: 0.88rem;
+  color: #22304a;
+  font-weight: 600;
+}
+
+.admin-section-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1f2a44;
+  margin: 0 0 0.75rem;
+}
+
+@media (max-width: 767.98px) {
+  .admin-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-detail-header {
+    flex-wrap: wrap;
+  }
+
+  .admin-detail-toggle {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .admin-detail-info {
+    grid-template-columns: 1fr;
+  }
+}

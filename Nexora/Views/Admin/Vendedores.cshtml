@@ -1,0 +1,122 @@
+@model List<Nexora.ViewModels.VendedorAdminViewModel>
+@{
+    ViewData["Title"] = "Panel Admin - Vendedores";
+    string query = ViewBag.Query as string ?? "";
+    int totalVendedores = ViewBag.TotalVendedores ?? 0;
+    int totalActivos = ViewBag.TotalActivos ?? 0;
+    int totalInactivos = ViewBag.TotalInactivos ?? 0;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+}
+
+<div class="admin-page">
+    <div class="admin-header">
+        <div>
+            <h1 class="admin-title">Panel de administración</h1>
+            <p class="admin-subtitle">Gestión y visualización de vendedores registrados</p>
+        </div>
+    </div>
+
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-success admin-alert" role="alert">@TempData["Mensaje"]</div>
+    }
+
+    <div class="admin-stats">
+        <div class="admin-stat-card">
+            <span class="admin-stat-value">@totalVendedores</span>
+            <span class="admin-stat-label">Total de vendedores</span>
+        </div>
+        <div class="admin-stat-card admin-stat-active">
+            <span class="admin-stat-value">@totalActivos</span>
+            <span class="admin-stat-label">Activos</span>
+        </div>
+        <div class="admin-stat-card admin-stat-inactive">
+            <span class="admin-stat-value">@totalInactivos</span>
+            <span class="admin-stat-label">Inactivos</span>
+        </div>
+    </div>
+
+    <div class="admin-toolbar card shadow-sm">
+        <div class="card-body">
+            <form method="get" class="admin-search-form">
+                <div class="input-group">
+                    <span class="input-group-text admin-search-icon">⌕</span>
+                    <input type="text" name="q" value="@query" class="form-control" placeholder="Buscar por tienda, propietario o correo..." />
+                    <button type="submit" class="btn btn-primary">Buscar</button>
+                    @if (!string.IsNullOrWhiteSpace(query))
+                    {
+                        <a class="btn btn-outline-secondary" asp-controller="Admin" asp-action="Vendedores">Limpiar</a>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="admin-table-card card shadow-sm">
+        @if (!Model.Any())
+        {
+            <div class="admin-empty">
+                <p class="admin-empty-title">No se encontraron vendedores.</p>
+                <p class="admin-empty-text">Intenta con otro término de búsqueda.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table admin-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Tienda</th>
+                            <th>Propietario</th>
+                            <th>Correo</th>
+                            <th class="text-center">Productos</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var v in Model)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@v.NombreTienda</td>
+                                <td>@v.NombreCompleto</td>
+                                <td>@v.Email</td>
+                                <td class="text-center">@v.CantidadProductos</td>
+                                <td class="text-center">
+                                    @if (v.Activo)
+                                    {
+                                        <span class="admin-badge admin-badge-active">Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="admin-badge admin-badge-inactive">Inactivo</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <div class="admin-actions">
+                                        <a class="btn btn-sm btn-outline-primary" asp-action="DetalleVendedor" asp-route-id="@v.Id">Ver detalle</a>
+                                        <form asp-action="ToggleActivo" asp-route-id="@v.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="returnUrl" value="@Url.Action("Vendedores", "Admin", new { q = query })" />
+                                            @if (v.Activo)
+                                            {
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">Desactivar</button>
+                                            }
+                                            else
+                                            {
+                                                <button type="submit" class="btn btn-sm btn-outline-success">Activar</button>
+                                            }
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

@@ -11,10 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 // Servicios
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<ApplicationDbContext> ( options =>
+    options.UseSqlServer ( connectionString ) );
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+builder.Services.AddIdentity<ApplicationUser, IdentityRole> ( options =>
 {
     // Reglas simples para desarrollo
     options.Password.RequireDigit = false;
@@ -22,47 +22,47 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequireUppercase = false;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequiredLength = 6;
-})
-.AddEntityFrameworkStores<ApplicationDbContext>()
-.AddDefaultTokenProviders();
+} )
+.AddEntityFrameworkStores<ApplicationDbContext> ()
+.AddDefaultTokenProviders ();
 
-builder.Services.AddControllersWithViews();
-builder.Services.AddRazorPages();
+builder.Services.AddControllersWithViews ();
+builder.Services.AddRazorPages ();
 
-builder.Services.AddSession(options =>
+builder.Services.AddSession ( options =>
 {
     options.Cookie.HttpOnly = true;
-    options.IdleTimeout = TimeSpan.FromHours(2);
-});
+    options.IdleTimeout = TimeSpan.FromHours ( 2 );
+} );
 
 var app = builder.Build();
 
 // Middleware
-if (!app.Environment.IsDevelopment())
+if ( !app.Environment.IsDevelopment () )
 {
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
+    app.UseExceptionHandler ( "/Home/Error" );
+    app.UseHsts ();
 }
 
-app.UseStaticFiles();
+app.UseStaticFiles ();
 
-app.UseRouting();
+app.UseRouting ();
 
-app.UseSession();
+app.UseSession ();
 
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseAuthentication ();
+app.UseAuthorization ();
 
 // Crear roles al inicio
-using (var scope = app.Services.CreateScope())
+using ( var scope = app.Services.CreateScope () )
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     string[] roles = new[] { "Administrador", "Vendedor", "Cliente" };
 
-    foreach (var role in roles)
+    foreach ( var role in roles )
     {
         var exists = await roleManager.RoleExistsAsync(role);
-        if (!exists)
+        if ( !exists )
         {
             var result = await roleManager.CreateAsync(new IdentityRole(role));
             // No detener ejecución si falla; en desarrollo se registra en logs
@@ -70,12 +70,42 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+// Cuenta administrador de prueba, solo para Desarrollo.
+// Nunca se siembra un admin con contraseña fija en producción por seguridad.
+if ( app.Environment.IsDevelopment () )
+{
+    using var scope = app.Services.CreateScope();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+    const string adminEmail = "admin@nexora.com";
+    var adminExistente = await userManager.FindByEmailAsync(adminEmail);
+
+    if ( adminExistente == null )
+    {
+        var admin = new ApplicationUser
+        {
+            UserName = adminEmail,
+            Email = adminEmail,
+            Nombre = "Admin",
+            Apellido = "Nexora",
+            EmailConfirmed = true
+        };
+
+        // Contraseña solo válida en local; cámbiala antes de desplegar
+        var creado = await userManager.CreateAsync(admin, "Admin123!");
+        if ( creado.Succeeded )
+        {
+            await userManager.AddToRoleAsync ( admin, "Administrador" );
+        }
+    }
+}
+
 // Ruta por defecto
-app.MapControllerRoute(
+app.MapControllerRoute (
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}" );
 
 // Mapear Razor Pages (necesario para las páginas de Identity en Areas/Identity)
-app.MapRazorPages();
+app.MapRazorPages ();
 
-app.Run();
+app.Run ();

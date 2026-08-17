@@ -1,0 +1,118 @@
+@model Nexora.ViewModels.VendedorDetalleViewModel
+@{
+    ViewData["Title"] = "Detalle del vendedor - " + Model.NombreTienda;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+}
+
+<div class="admin-page">
+    <a class="admin-back-link" asp-action="Vendedores">← Volver a vendedores</a>
+
+    <div class="admin-detail-card card shadow-sm">
+        <div class="card-body">
+            <div class="admin-detail-header">
+                <img src="@(Model.Logo ?? "/images/placeholder.png")" alt="@Model.NombreTienda" class="admin-detail-logo" />
+                <div>
+                    <h1 class="admin-detail-title">@Model.NombreTienda</h1>
+                    @if (Model.Activo)
+                    {
+                        <span class="admin-badge admin-badge-active">Activo</span>
+                    }
+                    else
+                    {
+                        <span class="admin-badge admin-badge-inactive">Inactivo</span>
+                    }
+                </div>
+
+                <form asp-action="ToggleActivo" asp-route-id="@Model.Id" method="post" class="admin-detail-toggle">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="returnUrl" value="@Url.Action("DetalleVendedor", "Admin", new { id = Model.Id })" />
+                    @if (Model.Activo)
+                    {
+                        <button type="submit" class="btn btn-outline-danger">Desactivar vendedor</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-outline-success">Activar vendedor</button>
+                    }
+                </form>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Descripcion))
+            {
+                <p class="admin-detail-desc">@Model.Descripcion</p>
+            }
+
+            <div class="admin-detail-info">
+                <div>
+                    <span class="admin-detail-label">Propietario</span>
+                    <span class="admin-detail-value">@Model.NombreCompleto</span>
+                </div>
+                <div>
+                    <span class="admin-detail-label">Correo</span>
+                    <span class="admin-detail-value">@Model.Email</span>
+                </div>
+                <div>
+                    <span class="admin-detail-label">Dirección</span>
+                    <span class="admin-detail-value">@(Model.Direccion ?? "No registrada")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="admin-section-title">Catálogo del vendedor (@Model.Productos.Count)</h2>
+
+    @if (!Model.Productos.Any())
+    {
+        <div class="admin-table-card card shadow-sm">
+            <div class="admin-empty">
+                <p class="admin-empty-title">Este vendedor aún no ha publicado productos.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="admin-table-card card shadow-sm">
+            <div class="table-responsive">
+                <table class="table admin-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Marca</th>
+                            <th>SKU</th>
+                            <th>Categoría</th>
+                            <th class="text-end">Precio</th>
+                            <th class="text-center">Stock</th>
+                            <th class="text-center">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in Model.Productos)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@p.Nombre</td>
+                                <td>@p.Marca</td>
+                                <td>@p.SKU</td>
+                                <td>@(p.Categoria?.Nombre ?? "—")</td>
+                                <td class="text-end">@p.Precio.ToString("C")</td>
+                                <td class="text-center">@p.Stock</td>
+                                <td class="text-center">
+                                    @if (p.Activo)
+                                    {
+                                        <span class="admin-badge admin-badge-active">Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="admin-badge admin-badge-inactive">Inactivo</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

@@ -8,32 +8,61 @@ namespace Nexora.Controllers
     public class HomeController : Controller
     {
         private readonly ApplicationDbContext _db;
-        public HomeController(ApplicationDbContext db)
+        public HomeController ( ApplicationDbContext db )
         {
             _db = db;
         }
 
+        // Cantidad de productos que se muestran por página en el catálogo
+        private const int TamanoPagina = 9;
+
         // GET: Home/Index
-        public async Task<IActionResult> Index(int? categoriaId, string? q)
+        public async Task<IActionResult> Index ( int? categoriaId, string? q, decimal? precioMin, decimal? precioMax, string? orden, int pagina = 1 )
         {
+            if ( pagina < 1 ) pagina = 1;
+
             var query = _db.Productos
                 .Include(p => p.Categoria)
                 .Include(p => p.Vendedor)
                 .Where(p => p.Activo);
 
-            if (categoriaId.HasValue)
+            if ( categoriaId.HasValue )
             {
-                query = query.Where(p => p.CategoriaId == categoriaId.Value);
+                query = query.Where ( p => p.CategoriaId == categoriaId.Value );
             }
 
-            if (!string.IsNullOrWhiteSpace(q))
+            if ( !string.IsNullOrWhiteSpace ( q ) )
             {
-                q = q.Trim();
-                query = query.Where(p => p.Nombre.Contains(q) || p.Marca.Contains(q));
+                q = q.Trim ();
+                query = query.Where ( p => p.Nombre.Contains ( q ) || p.Marca.Contains ( q ) );
             }
+
+            if ( precioMin.HasValue )
+            {
+                query = query.Where ( p => p.Precio >= precioMin.Value );
+            }
+
+            if ( precioMax.HasValue )
+            {
+                query = query.Where ( p => p.Precio <= precioMax.Value );
+            }
+
+            // Orden dinámico elegido por el usuario (por defecto: nombre A-Z)
+            query = orden switch
+            {
+                "precio_asc" => query.OrderBy ( p => p.Precio ),
+                "precio_desc" => query.OrderByDescending ( p => p.Precio ),
+                "nombre_desc" => query.OrderByDescending ( p => p.Nombre ),
+                _ => query.OrderBy ( p => p.Nombre )
+            };
+
+            var totalProductos = await query.CountAsync();
+            var totalPaginas = (int)Math.Ceiling(totalProductos / (double)TamanoPagina);
+            if ( totalPaginas > 0 && pagina > totalPaginas ) pagina = totalPaginas;
 
             var productos = await query
-                .OrderBy(p => p.Nombre)
+                .Skip((pagina - 1) * TamanoPagina)
+                .Take(TamanoPagina)
                 .ToListAsync();
 
             var vm = productos.Select(p => new ProductoViewModel
@@ -51,22 +80,28 @@ namespace Nexora.Controllers
             }).ToList();
 
             // Lista de categorías para filtros
-            ViewBag.Categorias = await _db.Categorias.OrderBy(c => c.Nombre).ToListAsync();
+            ViewBag.Categorias = await _db.Categorias.OrderBy ( c => c.Nombre ).ToListAsync ();
             ViewBag.CategoriaSeleccionada = categoriaId;
             ViewBag.Query = q;
+            ViewBag.PrecioMin = precioMin;
+            ViewBag.PrecioMax = precioMax;
+            ViewBag.Orden = orden;
+            ViewBag.PaginaActual = pagina;
+            ViewBag.TotalPaginas = totalPaginas;
+            ViewBag.TotalProductos = totalProductos;
 
-            return View(vm);
+            return View ( vm );
         }
 
         // GET: Home/Detalle/5
-        public async Task<IActionResult> Detalle(int id)
+        public async Task<IActionResult> Detalle ( int id )
         {
             var producto = await _db.Productos
                 .Include(p => p.Categoria)
                 .Include(p => p.Vendedor)
                 .FirstOrDefaultAsync(p => p.Id == id && p.Activo);
 
-            if (producto == null) return NotFound();
+            if ( producto == null ) return NotFound ();
 
             var vm = new ProductoViewModel
             {
@@ -82,7 +117,7 @@ namespace Nexora.Controllers
                 NombreTienda = producto.Vendedor?.NombreTienda ?? ""
             };
 
-            return View(vm);
+            return View ( vm );
         }
     }
 }
