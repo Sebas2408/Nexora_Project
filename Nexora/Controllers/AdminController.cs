@@ -8,33 +8,40 @@ using Nexora.ViewModels;
 namespace Nexora.Controllers
 {
     // Solo usuarios con rol Administrador pueden acceder a este controlador
-    [Authorize(Roles = "Administrador")]
+    [Authorize ( Roles = "Administrador" )]
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _db;
 
-        public AdminController(ApplicationDbContext db)
+        public AdminController ( ApplicationDbContext db )
         {
             _db = db;
         }
 
+        // GET: Admin/
+        // Redirige al listado de vendedores para que /Admin/ tenga una entrada válida
+        public IActionResult Index ( )
+        {
+            return RedirectToAction ( nameof ( Vendedores ) );
+        }
+
         // GET: Admin/Vendedores
         // Lista todos los vendedores registrados con opción de búsqueda
-        public async Task<IActionResult> Vendedores(string? q)
+        public async Task<IActionResult> Vendedores ( string? q )
         {
             var query = _db.Vendedores
                 .Include(v => v.ApplicationUser)
                 .Include(v => v.Productos)
                 .AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(q))
+            if ( !string.IsNullOrWhiteSpace ( q ) )
             {
-                q = q.Trim();
-                query = query.Where(v =>
-                    v.NombreTienda.Contains(q) ||
-                    (v.ApplicationUser != null && v.ApplicationUser.Nombre.Contains(q)) ||
-                    (v.ApplicationUser != null && v.ApplicationUser.Apellido.Contains(q)) ||
-                    (v.ApplicationUser != null && v.ApplicationUser.Email != null && v.ApplicationUser.Email.Contains(q)));
+                q = q.Trim ();
+                query = query.Where ( v =>
+                    v.NombreTienda.Contains ( q ) ||
+                    ( v.ApplicationUser != null && v.ApplicationUser.Nombre.Contains ( q ) ) ||
+                    ( v.ApplicationUser != null && v.ApplicationUser.Apellido.Contains ( q ) ) ||
+                    ( v.ApplicationUser != null && v.ApplicationUser.Email != null && v.ApplicationUser.Email.Contains ( q ) ) );
             }
 
             var vendedores = await query.OrderBy(v => v.NombreTienda).ToListAsync();
@@ -54,22 +61,22 @@ namespace Nexora.Controllers
 
             ViewBag.Query = q;
             ViewBag.TotalVendedores = vm.Count;
-            ViewBag.TotalActivos = vm.Count(x => x.Activo);
-            ViewBag.TotalInactivos = vm.Count(x => !x.Activo);
+            ViewBag.TotalActivos = vm.Count ( x => x.Activo );
+            ViewBag.TotalInactivos = vm.Count ( x => !x.Activo );
 
-            return View(vm);
+            return View ( vm );
         }
 
         // GET: Admin/DetalleVendedor/5
         // Muestra la información completa de un vendedor y su catálogo
-        public async Task<IActionResult> DetalleVendedor(int id)
+        public async Task<IActionResult> DetalleVendedor ( int id )
         {
             var vendedor = await _db.Vendedores
                 .Include(v => v.ApplicationUser)
                 .Include(v => v.Productos!).ThenInclude(p => p.Categoria)
                 .FirstOrDefaultAsync(v => v.Id == id);
 
-            if (vendedor == null) return NotFound();
+            if ( vendedor == null ) return NotFound ();
 
             var vm = new VendedorDetalleViewModel
             {
@@ -86,32 +93,32 @@ namespace Nexora.Controllers
                 Productos = vendedor.Productos?.OrderBy(p => p.Nombre).ToList() ?? new List<Producto>()
             };
 
-            return View(vm);
+            return View ( vm );
         }
 
         // POST: Admin/ToggleActivo/5
         // Activa o desactiva a un vendedor (bloquea/permite su visibilidad en el catálogo)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ToggleActivo(int id, string? returnUrl)
+        public async Task<IActionResult> ToggleActivo ( int id, string? returnUrl )
         {
             var vendedor = await _db.Vendedores.FindAsync(id);
-            if (vendedor == null) return NotFound();
+            if ( vendedor == null ) return NotFound ();
 
             vendedor.Activo = !vendedor.Activo;
-            await _db.SaveChangesAsync();
+            await _db.SaveChangesAsync ();
 
             TempData["Mensaje"] = vendedor.Activo
                 ? $"Vendedor \"{vendedor.NombreTienda}\" activado correctamente."
                 : $"Vendedor \"{vendedor.NombreTienda}\" desactivado correctamente.";
 
             // Se valida returnUrl para evitar redirecciones abiertas (open redirect)
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            if ( !string.IsNullOrEmpty ( returnUrl ) && Url.IsLocalUrl ( returnUrl ) )
             {
-                return LocalRedirect(returnUrl);
+                return LocalRedirect ( returnUrl );
             }
 
-            return RedirectToAction(nameof(Vendedores));
+            return RedirectToAction ( nameof ( Vendedores ) );
         }
     }
 }
