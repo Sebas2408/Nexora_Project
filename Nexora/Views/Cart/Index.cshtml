@@ -2,51 +2,98 @@
 @{
     ViewData["Title"] = "Carrito de compras";
     decimal total = ViewBag.Total ?? 0m;
+    decimal shipping = 15m;
+    decimal taxes = Math.Round(total * 0.08m, 2);
+    decimal grandTotal = total + shipping + taxes;
 }
 
-<h1>Carrito de compras</h1>
+<style>
+    .cart-item { border-radius: 12px; border: 1px solid #e6eef6; background:#fff; padding:18px; }
+    .cart-thumb { width:96px; height:72px; object-fit:cover; border-radius:8px; }
+    .qty-btn { width:32px; height:32px; border-radius:8px; border:1px solid #e1e6ee; background:#f8fafc; }
+    .summary-card { border-radius:12px; border:1px solid #e6eef6; padding:20px; background:#fff; }
+    .muted { color:#6b7280; }
+    .price-blue { color:#1268ff; font-weight:700; }
+</style>
 
-@if (!Model.Any())
-{
-    <p>El carrito está vacío.</p>
-    <a class="btn btn-primary" href="@Url.Action("Index", "Home")">Seguir comprando</a>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Producto</th>
-                <th>Precio</th>
-                <th>Cantidad</th>
-                <th>Subtotal</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>
-                        <img src="@(item.ImagenUrl ?? "/images/placeholder.png")" style="height:60px;object-fit:contain;" alt="@item.Nombre" />
-                        <div>@item.Nombre</div>
-                    </td>
-                    <td>@item.Precio.ToString("C")</td>
-                    <td>@item.Cantidad</td>
-                    <td>@item.Subtotal.ToString("C")</td>
-                    <td>
-                        <form asp-controller="Cart" asp-action="Quitar" method="post">
-                            <input type="hidden" name="productoId" value="@item.ProductoId" />
-                            <button type="submit" class="btn btn-sm btn-danger">Quitar</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-
-    <div class="d-flex justify-content-end">
-        <h4 class="me-4">Total: @total.ToString("C")</h4>
-        <a class="btn btn-success" href="#">Proceder al pago</a>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <h1 class="h3">Carrito de compras</h1>
+        <div class="muted">Tienes @Model.Count artículo(s) en tu carrito</div>
     </div>
-}
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-secondary">El carrito está vacío.</div>
+        <a class="btn btn-link" href="@Url.Action("Index", "Home")">← Continuar comprando</a>
+    }
+    else
+    {
+        <div class="row gx-4">
+            <div class="col-lg-8">
+                <div class="mb-3">
+                    @foreach (var item in Model)
+                    {
+                        <div class="cart-item d-flex align-items-center mb-3">
+                            <img class="cart-thumb me-3" src="@(item.ImagenUrl ?? "/images/placeholder.png")" alt="@item.Nombre" />
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold">@item.Nombre</div>
+                                <div class="muted small">ID: @item.ProductoId</div>
+                            </div>
+
+                            <div class="d-flex align-items-center me-4">
+                                <form asp-controller="Cart" asp-action="Agregar" method="post" class="d-flex align-items-center">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="productoId" value="@item.ProductoId" />
+                                    <input type="hidden" name="cantidad" value="-1" />
+                                    <button type="submit" class="btn qty-btn me-2">−</button>
+                                </form>
+                                <div class="px-2">@item.Cantidad</div>
+                                <form asp-controller="Cart" asp-action="Agregar" method="post" class="d-flex align-items-center ms-2">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="productoId" value="@item.ProductoId" />
+                                    <input type="hidden" name="cantidad" value="1" />
+                                    <button type="submit" class="btn qty-btn ms-2">+</button>
+                                </form>
+                            </div>
+
+                            <div class="text-end" style="width:130px;">
+                                <div class="price-blue">@item.Precio.ToString("C")</div>
+                                <div class="muted small">@item.Subtotal.ToString("C")</div>
+                                <form asp-controller="Cart" asp-action="Quitar" method="post" class="mt-2 text-end">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="productoId" value="@item.ProductoId" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <a class="d-inline-flex align-items-center text-primary" href="@Url.Action("Index", "Home")">← Continuar comprando</a>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="summary-card">
+                    <h5 class="mb-3">Resumen del pedido</h5>
+                    <div class="d-flex justify-content-between muted mb-2"><div>Subtotal</div><div>@total.ToString("C")</div></div>
+                    <div class="d-flex justify-content-between muted mb-2"><div>Envío (Terrestre)</div><div>@shipping.ToString("C")</div></div>
+                    <div class="d-flex justify-content-between muted mb-3"><div>Impuestos estimados</div><div>@taxes.ToString("C")</div></div>
+                    <hr />
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="fw-semibold">Total</div>
+                        <div class="price-blue fs-5">@grandTotal.ToString("C")</div>
+                    </div>
+
+                    <div class="mb-3 small muted">CÓDIGO PROMOCIONAL</div>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Ingresa el código de descuento..." />
+                        <button class="btn btn-outline-primary" type="button">Aplicar</button>
+                    </div>
+
+                    <button class="btn btn-primary w-100 btn-lg">Finalizar compra</button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
