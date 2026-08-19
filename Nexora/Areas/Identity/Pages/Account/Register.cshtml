@@ -1,67 +1,218 @@
 @page
 @model Nexora.Areas.Identity.Pages.Account.RegisterModel
+
 @{
     ViewData["Title"] = "Registrarse";
 }
 
-<h1>Registrarse</h1>
+<div class="container py-5">
+    <div class="row justify-content-center">
 
-<div class="row">
-    <div class="col-md-6">
-        <form method="post" asp-route-returnUrl="@Model.ReturnUrl">
-            @Html.AntiForgeryToken()
-            <partial name="_ValidationScriptsPartial" />
-            <div asp-validation-summary="All" class="text-danger"></div>
+        <div class="col-12 col-md-10 col-lg-8 col-xl-7">
 
-            <div class="mb-3">
-                <label asp-for="Input.Nombre" class="form-label">Nombre</label>
-                <input asp-for="Input.Nombre" class="form-control" />
-                <span asp-validation-for="Input.Nombre" class="text-danger"></span>
+            <div class="card border shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5">
+
+                    <!-- Encabezado -->
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold mb-2">
+                            Crear cuenta
+                        </h2>
+
+                        <p class="text-secondary mb-0">
+                            Regístrate para comenzar a usar Nexora
+                        </p>
+                    </div>
+
+                    <form method="post" asp-route-returnUrl="@Model.ReturnUrl">
+
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="All"
+                             class="text-danger small mb-3">
+                        </div>
+
+                        <div class="row g-3">
+
+                            <!-- Nombre -->
+                            <div class="col-12 col-md-6">
+                                <label asp-for="Input.Nombre"
+                                       class="form-label fw-semibold">
+                                    Nombre
+                                </label>
+
+                                <input asp-for="Input.Nombre"
+                                       class="form-control"
+                                       placeholder="Tu nombre"
+                                       autocomplete="given-name" />
+
+                                <span asp-validation-for="Input.Nombre"
+                                      class="text-danger small">
+                                </span>
+                            </div>
+
+                            <!-- Apellido -->
+                            <div class="col-12 col-md-6">
+                                <label asp-for="Input.Apellido"
+                                       class="form-label fw-semibold">
+                                    Apellido
+                                </label>
+
+                                <input asp-for="Input.Apellido"
+                                       class="form-control"
+                                       placeholder="Tu apellido"
+                                       autocomplete="family-name" />
+
+                                <span asp-validation-for="Input.Apellido"
+                                      class="text-danger small">
+                                </span>
+                            </div>
+
+                            <!-- Género -->
+                            <div class="col-12 col-md-6">
+                                <label asp-for="Input.Genero"
+                                       class="form-label fw-semibold">
+                                    Género
+                                </label>
+
+                                <select asp-for="Input.Genero"
+                                        class="form-select">
+
+                                    <option value="">
+                                        Selecciona una opción
+                                    </option>
+
+                                    <option value="Masculino">
+                                        Masculino
+                                    </option>
+
+                                    <option value="Femenino">
+                                        Femenino
+                                    </option>
+
+                                    <option value="Otro">
+                                        Otro
+                                    </option>
+
+                                </select>
+
+                                <span asp-validation-for="Input.Genero"
+                                      class="text-danger small">
+                                </span>
+                            </div>
+
+                            <!-- Fecha nacimiento -->
+                            <div class="col-12 col-md-6">
+                                <label asp-for="Input.FechaNacimiento"
+                                       class="form-label fw-semibold">
+                                    Fecha de nacimiento
+                                </label>
+
+                                <input asp-for="Input.FechaNacimiento"
+                                       class="form-control"
+                                       type="date" />
+
+                                <span asp-validation-for="Input.FechaNacimiento"
+                                      class="text-danger small">
+                                </span>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="col-12">
+                                <label asp-for="Input.Email"
+                                       class="form-label fw-semibold">
+                                    Correo electrónico
+                                </label>
+
+                                <input asp-for="Input.Email"
+                                       class="form-control"
+                                       placeholder="tu@example.com"
+                                       autocomplete="email" />
+
+                                <span asp-validation-for="Input.Email"
+                                      class="text-danger small">
+                                </span>
+                            </div>
+
+                            <!-- Password -->
+                            <div class="col-12 col-md-6">
+                                <label asp-for="Input.Password"
+                                       class="form-label fw-semibold">
+                                    Contraseña
+                                </label>
+
+                                <input asp-for="Input.Password"
+                                       class="form-control"
+                                       type="password"
+                                       placeholder="Mínimo 6 caracteres"
+                                       autocomplete="new-password" />
+
+                                <span asp-validation-for="Input.Password"
+                                      class="text-danger small">
+                                </span>
+                            </div>
+
+                            <!-- Confirm Password -->
+                            <div class="col-12 col-md-6">
+                                <label asp-for="Input.ConfirmPassword"
+                                       class="form-label fw-semibold">
+                                    Confirmar contraseña
+                                </label>
+
+                                <input asp-for="Input.ConfirmPassword"
+                                       class="form-control"
+                                       type="password"
+                                       placeholder="Repite tu contraseña"
+                                       autocomplete="new-password" />
+
+                                <span asp-validation-for="Input.ConfirmPassword"
+                                      class="text-danger small">
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <input type="hidden"
+                               asp-for="ReturnUrl" />
+
+                        <!-- Botón -->
+                        <div class="d-grid mt-4">
+                            <button type="submit"
+                                    class="btn btn-primary fw-semibold py-2">
+                                Crear cuenta
+                            </button>
+                        </div>
+
+                    </form>
+
+                    <!-- Separador -->
+                    <div class="d-flex align-items-center my-4">
+                        <hr class="flex-grow-1" />
+
+                        <span class="px-3 text-secondary small">
+                            o
+                        </span>
+
+                        <hr class="flex-grow-1" />
+                    </div>
+
+                    <!-- Login -->
+                    <div class="d-grid">
+                        <a asp-area="Identity"
+                           asp-page="/Account/Login"
+                           class="btn btn-outline-secondary fw-semibold py-2">
+                            Ya tengo una cuenta
+                        </a>
+                    </div>
+
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Input.Apellido" class="form-label">Apellido</label>
-                <input asp-for="Input.Apellido" class="form-control" />
-                <span asp-validation-for="Input.Apellido" class="text-danger"></span>
-            </div>
+        </div>
 
-            <div class="mb-3">
-                <label asp-for="Input.Genero" class="form-label">Género</label>
-                <select asp-for="Input.Genero" class="form-select">
-                    <option value="">-- Seleccione --</option>
-                    <option>Masculino</option>
-                    <option>Femenino</option>
-                    <option>Otro</option>
-                </select>
-                <span asp-validation-for="Input.Genero" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Input.FechaNacimiento" class="form-label">Fecha de nacimiento</label>
-                <input asp-for="Input.FechaNacimiento" class="form-control" type="date" />
-                <span asp-validation-for="Input.FechaNacimiento" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Input.Email" class="form-label">Correo electrónico</label>
-                <input asp-for="Input.Email" class="form-control" />
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Input.Password" class="form-label">Contraseña</label>
-                <input asp-for="Input.Password" class="form-control" />
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Input.ConfirmPassword" class="form-label">Confirmar contraseña</label>
-                <input asp-for="Input.ConfirmPassword" class="form-control" />
-                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-            </div>
-
-            <input type="hidden" asp-for="ReturnUrl" />
-            <button type="submit" class="btn btn-primary">Registrarse</button>
-        </form>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
