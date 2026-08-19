@@ -67,6 +67,25 @@ namespace Nexora.Areas.Identity.Pages.Account
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
+            // Log incoming input (avoid logging passwords)
+            _logger.LogInformation("Register input: Email={Email}, Nombre={Nombre}, Apellido={Apellido}, Genero={Genero}, FechaNacimientoHasValue={HasDob}",
+                Input?.Email, Input?.Nombre, Input?.Apellido, Input?.Genero, Input != null && Input.FechaNacimiento.HasValue);
+
+            if (!ModelState.IsValid)
+            {
+                // Log ModelState errors to help debugging when the form is redisplayed
+                foreach (var entry in ModelState)
+                {
+                    foreach (var error in entry.Value.Errors)
+                    {
+                        _logger.LogWarning("ModelState error for {Key}: {Error}", entry.Key, error.ErrorMessage);
+                    }
+                }
+
+                // Redisplay form
+                return Page();
+            }
+
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email, Nombre = Input.Nombre, Apellido = Input.Apellido };
@@ -104,6 +123,7 @@ namespace Nexora.Areas.Identity.Pages.Account
                 }
                 foreach (var error in result.Errors)
                 {
+                    _logger.LogWarning("Identity create error: {Code} - {Description}", error.Code, error.Description);
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
