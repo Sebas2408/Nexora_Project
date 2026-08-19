@@ -1,0 +1,21 @@
+@page
+@model Nexora.Areas.Identity.Pages.Account.Manage.IndexModel
+@using Microsoft.AspNetCore.Authorization
+@{
+    ViewData["Title"] = "Mi cuenta";
+}
+
+<h1>Mi cuenta</h1>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-3">Email</dt>
+        <dd class="col-sm-9">@Model.Email</dd>
+
+        <dt class="col-sm-3">Nombre</dt>
+        <dd class="col-sm-9">@Model.Nombre</dd>
+
+        <dt class="col-sm-3">Apellido</dt>
+        <dd class="col-sm-9">@Model.Apellido</dd>
+    </dl>
+</div>
