@@ -30,6 +30,10 @@ namespace Nexora.Models
         [Range(0, 9999999)]
         public decimal Precio { get; set; }
 
+        [Column(TypeName = "decimal(2,1)")]
+        [Range(0, 5)]
+        public decimal Rating { get; set; }
+
         [Required]
         [Range(0, int.MaxValue)]
         public int Stock { get; set; }
