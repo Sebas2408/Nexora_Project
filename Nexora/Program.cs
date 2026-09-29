@@ -26,6 +26,12 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole> ( options =>
 .AddEntityFrameworkStores<ApplicationDbContext> ()
 .AddDefaultTokenProviders ();
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Identity/Account/Login";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+});
+
 builder.Services.AddControllersWithViews ();
 builder.Services.AddRazorPages ();
 
@@ -97,6 +103,10 @@ if ( app.Environment.IsDevelopment () )
         {
             await userManager.AddToRoleAsync ( admin, "Administrador" );
         }
+    }
+    else if ( !await userManager.IsInRoleAsync ( adminExistente, "Administrador" ) )
+    {
+        await userManager.AddToRoleAsync ( adminExistente, "Administrador" );
     }
 }
 

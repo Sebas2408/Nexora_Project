@@ -1,0 +1,24 @@
+@model Nexora.ViewModels.AdminPerfilViewModel
+@{
+    ViewData["Title"] = "Perfil de Administrador";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+}
+
+<div class="admin-page">
+    <div class="admin-header">
+        <div>
+            <h1 class="admin-title">Perfil del Administrador</h1>
+            <p class="admin-subtitle">Información de la cuenta autenticada.</p>
+        </div>
+    </div>
+    <div class="admin-detail-card card shadow-sm">
+        <div class="card-body admin-detail-info">
+            <div><span class="admin-detail-label">Nombre</span><span class="admin-detail-value">@Model.Nombre @Model.Apellido</span></div>
+            <div><span class="admin-detail-label">Correo electrónico</span><span class="admin-detail-value">@Model.Email</span></div>
+            <div><span class="admin-detail-label">Rol</span><span class="admin-detail-value">Administrador</span></div>
+        </div>
+    </div>
+</div>

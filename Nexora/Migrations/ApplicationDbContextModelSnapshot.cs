@@ -1098,6 +1098,9 @@ namespace Nexora.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
+                    b.Property<DateTime?>("FechaRegistro")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Logo")
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");

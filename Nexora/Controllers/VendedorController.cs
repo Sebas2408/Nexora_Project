@@ -19,9 +19,23 @@ namespace Nexora.Controllers
             _userManager = userManager;
         }
 
+        private async Task<IActionResult?> VerificarVendedorActivoAsync()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Challenge();
+
+            var vendedor = await _db.Vendedores.AsNoTracking()
+                .FirstOrDefaultAsync(v => v.ApplicationUserId == user.Id);
+
+            return vendedor != null && !vendedor.Activo ? Forbid() : null;
+        }
+
         // GET: Vendedor/MisProductos
         public async Task<IActionResult> MisProductos()
         {
+            var restriccion = await VerificarVendedorActivoAsync();
+            if (restriccion != null) return restriccion;
+
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Challenge();
 
@@ -38,6 +52,9 @@ namespace Nexora.Controllers
         // GET: Vendedor/Crear
         public async Task<IActionResult> Crear()
         {
+            var restriccion = await VerificarVendedorActivoAsync();
+            if (restriccion != null) return restriccion;
+
             ViewBag.Categorias = await _db.Categorias.OrderBy(c => c.Nombre).ToListAsync();
             return View();
         }
@@ -47,6 +64,9 @@ namespace Nexora.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crear(Producto model)
         {
+            var restriccion = await VerificarVendedorActivoAsync();
+            if (restriccion != null) return restriccion;
+
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Challenge();
 

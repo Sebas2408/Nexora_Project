@@ -25,6 +25,8 @@ namespace Nexora.Models
 
         public bool Activo { get; set; } = true;
 
+        public DateTime? FechaRegistro { get; set; }
+
         public ICollection<Producto>? Productos { get; set; }
     }
 }

@@ -30,10 +30,9 @@
 
                     <form method="post" asp-route-returnUrl="@Model.ReturnUrl">
 
-                        @Html.AntiForgeryToken()
-
                         <div asp-validation-summary="All"
-                             class="text-danger small mb-3">
+                             class="text-danger small mb-3"
+                             role="alert">
                         </div>
 
                         <!-- Email -->
@@ -46,7 +45,8 @@
                             <input asp-for="Input.Email"
                                    class="form-control form-control-lg"
                                    placeholder="tu@correo.com"
-                                   autocomplete="username" />
+                                   autocomplete="username"
+                                   autofocus />
 
                             <span asp-validation-for="Input.Email"
                                   class="text-danger small">
@@ -71,7 +71,7 @@
                         </div>
 
                         <!-- Opciones -->
-                        <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="mb-4">
 
                             <div class="form-check">
                                 <input asp-for="Input.RememberMe"
@@ -83,16 +83,7 @@
                                 </label>
                             </div>
 
-                            <a asp-area="Identity"
-                               asp-page="/Account/ForgotPassword"
-                               class="text-decoration-none small fw-semibold">
-                                ¿Olvidaste tu contraseña?
-                            </a>
-
                         </div>
-
-                        <input type="hidden"
-                               asp-for="ReturnUrl" />
 
                         <!-- Submit -->
                         <div class="d-grid">
@@ -128,7 +119,6 @@
 
                 </div>
             </div>
-
         </div>
     </div>
 </div>
