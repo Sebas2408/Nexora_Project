@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Nexora.Data;
 using Nexora.Models;
+using Nexora.Services;
 using Nexora.ViewModels;
 
 namespace Nexora.Controllers
@@ -14,6 +17,8 @@ namespace Nexora.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ILogger<AdminController> _logger;
+        private readonly AlmacenamientoImagenProducto _almacenamientoImagen;
+        private readonly AlmacenamientoImagenTienda _almacenamientoImagenTienda;
         private const int TamanoPagina = 10;
 
         public AdminController(
@@ -21,13 +26,17 @@ namespace Nexora.Controllers
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             RoleManager<IdentityRole> roleManager,
-            ILogger<AdminController> logger)
+            ILogger<AdminController> logger,
+            AlmacenamientoImagenProducto almacenamientoImagen,
+            AlmacenamientoImagenTienda almacenamientoImagenTienda)
         {
             _db = db;
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _logger = logger;
+            _almacenamientoImagen = almacenamientoImagen;
+            _almacenamientoImagenTienda = almacenamientoImagenTienda;
         }
 
         // GET: Admin/
@@ -280,6 +289,163 @@ namespace Nexora.Controllers
             return producto == null ? NotFound() : View(producto);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> CrearProducto()
+        {
+            await CargarOpcionesProductoAsync();
+            return View(new Producto { Activo = true });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CrearProducto(
+            [Bind("Nombre,Marca,Modelo,Especificaciones,SKU,Precio,Stock,GarantiaMeses,ImagenUrl,Activo,CategoriaId,VendedorId")] Producto producto,
+            IFormFile? imagenArchivo = null,
+            string modoImagen = "url")
+        {
+            ViewBag.ModoImagen = modoImagen;
+            var resultadoImagen = await _almacenamientoImagen.ResolverAsync(modoImagen, producto.ImagenUrl, imagenArchivo, null, esNuevo: true);
+            if (!resultadoImagen.Correcto)
+            {
+                ModelState.AddModelError(nameof(producto.ImagenUrl), resultadoImagen.Error!);
+            }
+
+            await ValidarAsignacionesProductoAsync(producto);
+            if (await _db.Productos.AnyAsync(p => p.SKU == producto.SKU))
+            {
+                ModelState.AddModelError(nameof(producto.SKU), "Ya existe un producto con este SKU.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                _almacenamientoImagen.EliminarImagenSubida(resultadoImagen.Url);
+                await CargarOpcionesProductoAsync(producto.CategoriaId, producto.VendedorId);
+                return View(producto);
+            }
+
+            producto.ImagenUrl = resultadoImagen.Url;
+            _db.Productos.Add(producto);
+            try
+            {
+                await _db.SaveChangesAsync();
+            }
+            catch
+            {
+                _almacenamientoImagen.EliminarImagenSubida(resultadoImagen.Url);
+                throw;
+            }
+
+            TempData["Mensaje"] = "Producto creado correctamente.";
+            return RedirectToAction(nameof(Inventario));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditarProducto(int id)
+        {
+            var producto = await _db.Productos.FindAsync(id);
+            if (producto == null) return NotFound();
+
+            await CargarOpcionesProductoAsync(producto.CategoriaId, producto.VendedorId);
+            return View(producto);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditarProducto(
+            int id,
+            [Bind("Id,Nombre,Marca,Modelo,Especificaciones,SKU,Precio,Stock,GarantiaMeses,ImagenUrl,Activo,CategoriaId,VendedorId")] Producto model,
+            IFormFile? imagenArchivo = null,
+            string modoImagen = "url")
+        {
+            ViewBag.ModoImagen = modoImagen;
+            if (id != model.Id) return NotFound();
+
+            var producto = await _db.Productos.FindAsync(id);
+            if (producto == null) return NotFound();
+
+            var imagenAnterior = producto.ImagenUrl;
+            var resultadoImagen = await _almacenamientoImagen.ResolverAsync(modoImagen, model.ImagenUrl, imagenArchivo, imagenAnterior, esNuevo: false);
+            if (!resultadoImagen.Correcto)
+            {
+                ModelState.AddModelError(nameof(model.ImagenUrl), resultadoImagen.Error!);
+                model.ImagenUrl = imagenAnterior;
+            }
+
+            await ValidarAsignacionesProductoAsync(model);
+            if (await _db.Productos.AnyAsync(p => p.Id != id && p.SKU == model.SKU))
+            {
+                ModelState.AddModelError(nameof(model.SKU), "Ya existe otro producto con este SKU.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                if (!string.Equals(resultadoImagen.Url, imagenAnterior, StringComparison.Ordinal))
+                {
+                    _almacenamientoImagen.EliminarImagenSubida(resultadoImagen.Url);
+                }
+                await CargarOpcionesProductoAsync(model.CategoriaId, model.VendedorId);
+                ViewBag.ImagenActual = imagenAnterior;
+                return View(model);
+            }
+
+            producto.Nombre = model.Nombre;
+            producto.Marca = model.Marca;
+            producto.Modelo = model.Modelo;
+            producto.Especificaciones = model.Especificaciones;
+            producto.SKU = model.SKU;
+            producto.Precio = model.Precio;
+            producto.Stock = model.Stock;
+            producto.GarantiaMeses = model.GarantiaMeses;
+            producto.ImagenUrl = resultadoImagen.Url;
+            producto.Activo = model.Activo;
+            producto.CategoriaId = model.CategoriaId;
+            producto.VendedorId = model.VendedorId;
+
+            try
+            {
+                await _db.SaveChangesAsync();
+            }
+            catch
+            {
+                if (!string.Equals(resultadoImagen.Url, imagenAnterior, StringComparison.Ordinal))
+                {
+                    _almacenamientoImagen.EliminarImagenSubida(resultadoImagen.Url);
+                }
+                throw;
+            }
+
+            if (!string.Equals(resultadoImagen.Url, imagenAnterior, StringComparison.Ordinal))
+            {
+                _almacenamientoImagen.EliminarImagenSubida(imagenAnterior);
+            }
+
+            TempData["Mensaje"] = "Producto actualizado correctamente.";
+            return RedirectToAction(nameof(Inventario));
+        }
+
+        private async Task CargarOpcionesProductoAsync(int? categoriaId = null, int? vendedorId = null)
+        {
+            ViewBag.CategoriaId = new SelectList(
+                await _db.Categorias.AsNoTracking().OrderBy(c => c.Nombre).ToListAsync(),
+                "Id", "Nombre", categoriaId);
+            ViewBag.VendedorId = new SelectList(
+                await _db.Vendedores.AsNoTracking().OrderBy(v => v.NombreTienda).ToListAsync(),
+                "Id", "NombreTienda", vendedorId);
+        }
+
+        private async Task ValidarAsignacionesProductoAsync(Producto producto)
+        {
+            if (!await _db.Categorias.AnyAsync(c => c.Id == producto.CategoriaId))
+            {
+                ModelState.AddModelError(nameof(producto.CategoriaId), "Selecciona una categoría válida.");
+            }
+
+            if (!await _db.Vendedores.AnyAsync(v => v.Id == producto.VendedorId))
+            {
+                ModelState.AddModelError(nameof(producto.VendedorId), "Selecciona un vendedor válido.");
+            }
+        }
+
         public async Task<IActionResult> Analiticas(DateTime? desde, DateTime? hasta)
         {
             const int umbralStockBajo = 5;
@@ -409,12 +575,12 @@ namespace Nexora.Controllers
             if (vendedor?.ApplicationUser == null) return NotFound();
 
             ViewBag.Correo = vendedor.ApplicationUser.Email ?? string.Empty;
+            ViewBag.LogoActual = vendedor.Logo;
             return View(new EditarVendedorViewModel
             {
                 Id = vendedor.Id,
                 NombreTienda = vendedor.NombreTienda,
                 Descripcion = vendedor.Descripcion,
-                Logo = vendedor.Logo,
                 Nombre = vendedor.ApplicationUser.Nombre,
                 Apellido = vendedor.ApplicationUser.Apellido,
                 Direccion = vendedor.ApplicationUser.Direccion
@@ -423,7 +589,7 @@ namespace Nexora.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditarVendedor(int id, EditarVendedorViewModel model)
+        public async Task<IActionResult> EditarVendedor(int id, EditarVendedorViewModel model, IFormFile? imagenTienda)
         {
             if (id != model.Id) return NotFound();
 
@@ -434,14 +600,32 @@ namespace Nexora.Controllers
             if (vendedor?.ApplicationUser == null) return NotFound();
 
             ViewBag.Correo = vendedor.ApplicationUser.Email ?? string.Empty;
+            var logoAnterior = vendedor.Logo;
             if (!ModelState.IsValid)
             {
+                ViewBag.LogoActual = vendedor.Logo;
                 return View(model);
+            }
+
+            string? nuevoLogo = null;
+            if (imagenTienda is { Length: > 0 })
+            {
+                var resultadoImagen = await _almacenamientoImagenTienda.GuardarAsync(imagenTienda);
+                if (!resultadoImagen.Correcto)
+                {
+                    ModelState.AddModelError(nameof(imagenTienda), resultadoImagen.Error!);
+                    ViewBag.LogoActual = vendedor.Logo;
+                    return View(model);
+                }
+                nuevoLogo = resultadoImagen.Url;
             }
 
             vendedor.NombreTienda = model.NombreTienda.Trim();
             vendedor.Descripcion = string.IsNullOrWhiteSpace(model.Descripcion) ? null : model.Descripcion.Trim();
-            vendedor.Logo = string.IsNullOrWhiteSpace(model.Logo) ? null : model.Logo.Trim();
+            if (nuevoLogo != null)
+            {
+                vendedor.Logo = nuevoLogo;
+            }
             vendedor.ApplicationUser.Nombre = model.Nombre.Trim();
             vendedor.ApplicationUser.Apellido = model.Apellido.Trim();
             vendedor.ApplicationUser.Direccion = string.IsNullOrWhiteSpace(model.Direccion) ? null : model.Direccion.Trim();
@@ -452,9 +636,21 @@ namespace Nexora.Controllers
             }
             catch (DbUpdateException exception)
             {
+                _almacenamientoImagenTienda.Eliminar(nuevoLogo);
                 _logger.LogError(exception, "Error al editar el perfil del vendedor {VendedorId} desde el panel administrativo.", id);
                 ModelState.AddModelError(string.Empty, "No se pudieron guardar los cambios. Inténtalo de nuevo.");
+                ViewBag.LogoActual = logoAnterior;
                 return View(model);
+            }
+            catch
+            {
+                _almacenamientoImagenTienda.Eliminar(nuevoLogo);
+                throw;
+            }
+
+            if (nuevoLogo != null)
+            {
+                _almacenamientoImagenTienda.Eliminar(logoAnterior);
             }
 
             TempData["Mensaje"] = $"Los datos de {vendedor.NombreTienda} se actualizaron correctamente.";
@@ -463,10 +659,25 @@ namespace Nexora.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RegistrarVendedor(RegistroVendedorViewModel model)
+        public async Task<IActionResult> RegistrarVendedor(RegistroVendedorViewModel model, IFormFile? imagenTienda)
         {
+            ResultadoImagenTienda? resultadoImagen = null;
+            if (imagenTienda is { Length: > 0 })
+            {
+                resultadoImagen = await _almacenamientoImagenTienda.GuardarAsync(imagenTienda);
+                if (!resultadoImagen.Correcto)
+                {
+                    ModelState.AddModelError(nameof(imagenTienda), resultadoImagen.Error!);
+                }
+            }
+            else
+            {
+                ModelState.AddModelError(nameof(imagenTienda), "Selecciona una imagen para la tienda.");
+            }
+
             if (!ModelState.IsValid)
             {
+                _almacenamientoImagenTienda.Eliminar(resultadoImagen?.Url);
                 return View(model);
             }
 
@@ -474,6 +685,7 @@ namespace Nexora.Controllers
             if (await _userManager.FindByEmailAsync(email) != null)
             {
                 ModelState.AddModelError(nameof(model.Email), "Ya existe una cuenta con este correo electrónico.");
+                _almacenamientoImagenTienda.Eliminar(resultadoImagen?.Url);
                 return View(model);
             }
 
@@ -487,6 +699,7 @@ namespace Nexora.Controllers
                     {
                         await transaction.RollbackAsync();
                         ModelState.AddModelError(string.Empty, "No se pudo preparar el rol de vendedor.");
+                        _almacenamientoImagenTienda.Eliminar(resultadoImagen?.Url);
                         return View(model);
                     }
                 }
@@ -509,6 +722,7 @@ namespace Nexora.Controllers
                     {
                         ModelState.AddModelError(string.Empty, error.Description);
                     }
+                    _almacenamientoImagenTienda.Eliminar(resultadoImagen?.Url);
                     return View(model);
                 }
 
@@ -520,6 +734,7 @@ namespace Nexora.Controllers
                     {
                         ModelState.AddModelError(string.Empty, error.Description);
                     }
+                    _almacenamientoImagenTienda.Eliminar(resultadoImagen?.Url);
                     return View(model);
                 }
 
@@ -528,7 +743,7 @@ namespace Nexora.Controllers
                     ApplicationUserId = user.Id,
                     NombreTienda = model.NombreTienda.Trim(),
                     Descripcion = string.IsNullOrWhiteSpace(model.Descripcion) ? null : model.Descripcion.Trim(),
-                    Logo = string.IsNullOrWhiteSpace(model.Logo) ? null : model.Logo.Trim(),
+                    Logo = resultadoImagen!.Url,
                     Activo = true,
                     FechaRegistro = DateTime.UtcNow
                 });
@@ -541,9 +756,16 @@ namespace Nexora.Controllers
             catch (DbUpdateException exception)
             {
                 await transaction.RollbackAsync();
+                _almacenamientoImagenTienda.Eliminar(resultadoImagen?.Url);
                 _logger.LogError(exception, "Error de persistencia al registrar un vendedor desde el panel administrativo.");
                 ModelState.AddModelError(string.Empty, "No se pudo completar el registro. Comprueba que el correo no esté ya registrado e inténtalo de nuevo.");
                 return View(model);
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                _almacenamientoImagenTienda.Eliminar(resultadoImagen?.Url);
+                throw;
             }
         }
 

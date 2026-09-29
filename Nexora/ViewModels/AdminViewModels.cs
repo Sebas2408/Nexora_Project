@@ -29,10 +29,6 @@ namespace Nexora.ViewModels
         [Display(Name = "Descripción de la empresa")]
         public string? Descripcion { get; set; }
 
-        [StringLength(250)]
-        [Display(Name = "URL o ruta del logo")]
-        public string? Logo { get; set; }
-
         [Required, StringLength(50)]
         [Display(Name = "Nombre de contacto")]
         public string Nombre { get; set; } = string.Empty;
@@ -70,10 +66,6 @@ namespace Nexora.ViewModels
         [StringLength(1000)]
         [Display(Name = "Descripción de la empresa")]
         public string? Descripcion { get; set; }
-
-        [StringLength(250)]
-        [Display(Name = "URL o ruta del logo")]
-        public string? Logo { get; set; }
 
         [Required, StringLength(50)]
         [Display(Name = "Nombre de contacto")]

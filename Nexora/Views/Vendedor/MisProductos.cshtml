@@ -9,6 +9,15 @@
     <a class="btn btn-primary" href="@Url.Action("Crear", "Vendedor")">Agregar nuevo producto</a>
 </p>
 
+@if (TempData["Mensaje"] is string mensaje)
+{
+    <div class="alert alert-success" role="status">@mensaje</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}
+
 @if (!Model.Any())
 {
     <p>No tienes productos registrados.</p>
@@ -23,6 +32,7 @@ else
                 <th>Precio</th>
                 <th>Stock</th>
                 <th>Activo</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -34,6 +44,10 @@ else
                     <td>@p.Precio.ToString("C")</td>
                     <td>@p.Stock</td>
                     <td>@(p.Activo ? "Sí" : "No")</td>
+                    <td>
+                        <a class="btn btn-sm btn-outline-primary" asp-action="EditarProducto" asp-route-id="@p.Id">Editar</a>
+                        <a class="btn btn-sm btn-outline-danger" asp-action="EliminarProducto" asp-route-id="@p.Id">Eliminar</a>
+                    </td>
                 </tr>
             }
         </tbody>

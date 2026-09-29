@@ -14,7 +14,7 @@
             <h1 class="admin-title">Panel de administración</h1>
             <p class="admin-subtitle">Gestión y visualización de vendedores registrados</p>
         </div>
-        <a class="btn btn-dark" asp-action="RegistrarVendedor">+ Registrar nuevo comerciante</a>
+        <a class="btn btn-dark" asp-action="RegistrarVendedor"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i> Registrar nuevo comerciante</a>
     </div>
 
     @if (TempData["Mensaje"] != null)
@@ -110,19 +110,19 @@
                                 </td>
                                 <td class="text-end">
                                     <div class="admin-actions">
-                                        <a class="btn btn-sm btn-outline-primary" asp-action="DetalleVendedor" asp-route-id="@v.Id">Ver detalle</a>
-                                        <a class="btn btn-sm btn-outline-secondary" asp-action="EditarVendedor" asp-route-id="@v.Id">Editar</a>
+                                        <a class="btn btn-sm btn-outline-primary" asp-action="DetalleVendedor" asp-route-id="@v.Id" title="Ver detalle" aria-label="Ver detalle de @v.NombreTienda"><i class="bi bi-eye" aria-hidden="true"></i></a>
+                                        <a class="btn btn-sm btn-outline-secondary" asp-action="EditarVendedor" asp-route-id="@v.Id" title="Editar" aria-label="Editar @v.NombreTienda"><i class="bi bi-pencil" aria-hidden="true"></i></a>
                                         <form asp-action="CambiarEstadoVendedor" asp-route-id="@v.Id" method="post" class="d-inline">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="activo" value="@(!v.Activo).ToString().ToLowerInvariant()" />
                                             <input type="hidden" name="returnUrl" value="@Url.Action("Vendedores", "Admin", new { q = query, activo = Model.Activo, orden = Model.Orden, ascendente = Model.Ascendente, pagina = Model.Pagina })" />
                                             @if (v.Activo)
                                             {
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Confirmas la suspensión de este vendedor?');">Suspender</button>
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Suspender" aria-label="Suspender a @v.NombreTienda" onclick="return confirm('¿Confirmas la suspensión de este vendedor?');"><i class="bi bi-person-x" aria-hidden="true"></i></button>
                                             }
                                             else
                                             {
-                                                <button type="submit" class="btn btn-sm btn-outline-success" onclick="return confirm('¿Confirmas la reactivación de este vendedor?');">Reactivar</button>
+                                                <button type="submit" class="btn btn-sm btn-outline-success" title="Reactivar" aria-label="Reactivar a @v.NombreTienda" onclick="return confirm('¿Confirmas la reactivación de este vendedor?');"><i class="bi bi-person-check" aria-hidden="true"></i></button>
                                             }
                                         </form>
                                     </div>

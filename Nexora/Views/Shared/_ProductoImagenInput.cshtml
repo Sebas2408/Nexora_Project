@@ -1,0 +1,41 @@
+@using Nexora.Models
+@model Producto
+@{
+    var modoSeleccionado = ViewBag.ModoImagen as string;
+    var imagenActual = ViewBag.ImagenActual as string ?? Model?.ImagenUrl;
+    var imagenAlmacenada = imagenActual?.StartsWith("/uploads/productos/", StringComparison.Ordinal) == true;
+    var modoInicial = modoSeleccionado ?? (imagenAlmacenada ? "archivo" : "url");
+    var urlIntroducida = Model?.ImagenUrl;
+    if (urlIntroducida?.StartsWith("/uploads/productos/", StringComparison.Ordinal) == true)
+    {
+        urlIntroducida = string.Empty;
+    }
+}
+
+<div class="col-12 mb-3" data-product-image-input>
+    <label for="modoImagen" class="form-label">Imagen del producto</label>
+    <select id="modoImagen" name="modoImagen" class="form-select" data-product-image-mode required>
+        <option value="url" selected="@(modoInicial == "url")">Indicar URL</option>
+        <option value="archivo" selected="@(modoInicial == "archivo")">Cargar desde el dispositivo</option>
+    </select>
+</div>
+
+<div class="col-12 mb-3" data-product-image-panel="url">
+    <label for="ImagenUrl" class="form-label">URL de la imagen</label>
+    <input id="ImagenUrl" name="ImagenUrl" type="url" class="form-control" value="@urlIntroducida" placeholder="https://..." maxlength="500" disabled="@(modoInicial != "url")" />
+    <span asp-validation-for="ImagenUrl" class="text-danger"></span>
+</div>
+
+<div class="col-12 mb-3" data-product-image-panel="archivo" hidden="@(modoInicial != "archivo")">
+    <label for="imagenArchivo" class="form-label">Archivo de imagen</label>
+    <input id="imagenArchivo" name="imagenArchivo" type="file" class="form-control" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" disabled="@(modoInicial != "archivo")" />
+    <div class="form-text">Formatos admitidos: JPG, PNG y WebP. Tamaño máximo: 5 MB.</div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(imagenActual))
+{
+    <div class="col-12 mb-3">
+        <p class="form-label">Imagen actual</p>
+        <img src="@imagenActual" alt="Imagen actual de @(Model?.Nombre ?? "producto")" class="img-thumbnail" style="max-width: 240px; max-height: 180px; object-fit: contain;" />
+    </div>
+}

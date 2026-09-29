@@ -6,7 +6,7 @@
 
 <h1>Crear producto</h1>
 
-<form asp-action="Crear" method="post">
+<form asp-action="Crear" method="post" enctype="multipart/form-data">
     <div class="mb-3">
         <label class="form-label">Nombre</label>
         <input asp-for="Nombre" class="form-control" />
@@ -53,10 +53,7 @@
         </div>
     </div>
 
-    <div class="mb-3">
-        <label class="form-label">Imagen URL</label>
-        <input asp-for="ImagenUrl" class="form-control" />
-    </div>
+    <partial name="_ProductoImagenInput" model="Model" />
 
     <div class="mb-3">
         <label class="form-label">Categoría</label>
@@ -76,4 +73,5 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/product-image-input.js" asp-append-version="true"></script>
 }

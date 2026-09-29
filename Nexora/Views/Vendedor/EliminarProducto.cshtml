@@ -1,0 +1,35 @@
+@model Nexora.Models.Producto
+@{
+    ViewData["Title"] = "Eliminar producto";
+    var tienePedidos = ViewBag.TienePedidos as bool? ?? false;
+}
+
+<div class="card shadow-sm border-0 my-4">
+    <div class="card-body p-4">
+        <h1 class="h3">Eliminar producto</h1>
+        <p>¿Quieres eliminar <strong>@Model.Nombre</strong> (@Model.SKU)?</p>
+
+        @if (tienePedidos)
+        {
+            <div class="alert alert-warning" role="alert">
+                Este producto está asociado a pedidos y no se puede eliminar sin perder el historial. Puedes desactivarlo desde su edición.
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-danger" role="alert">
+                Esta acción eliminará el producto del inventario y no se puede deshacer.
+            </div>
+        }
+
+        <div class="d-flex gap-2">
+            @if (!tienePedidos)
+            {
+                <form asp-action="EliminarProducto" asp-route-id="@Model.Id" method="post">
+                    <button type="submit" class="btn btn-danger">Confirmar eliminación</button>
+                </form>
+            }
+            <a asp-action="MisProductos" class="btn btn-outline-secondary">Volver a mis productos</a>
+        </div>
+    </div>
+</div>

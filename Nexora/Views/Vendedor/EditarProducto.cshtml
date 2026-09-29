@@ -1,0 +1,84 @@
+@model Nexora.Models.Producto
+@{
+    ViewData["Title"] = "Editar producto";
+    var categorias = ViewBag.Categorias as List<Nexora.Models.Categoria> ?? new List<Nexora.Models.Categoria>();
+}
+
+<h1>Editar producto</h1>
+<p class="text-muted">Actualiza los datos de @Model.Nombre. El producto seguirá asociado a tu tienda.</p>
+
+<form asp-action="EditarProducto" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="Nombre" class="form-label"></label>
+            <input asp-for="Nombre" class="form-control" />
+            <span asp-validation-for="Nombre" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="SKU" class="form-label"></label>
+            <input asp-for="SKU" class="form-control" />
+            <span asp-validation-for="SKU" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Marca" class="form-label"></label>
+            <input asp-for="Marca" class="form-control" />
+            <span asp-validation-for="Marca" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Modelo" class="form-label"></label>
+            <input asp-for="Modelo" class="form-control" />
+            <span asp-validation-for="Modelo" class="text-danger"></span>
+        </div>
+        <div class="col-12">
+            <label asp-for="Especificaciones" class="form-label"></label>
+            <textarea asp-for="Especificaciones" class="form-control" rows="4"></textarea>
+            <span asp-validation-for="Especificaciones" class="text-danger"></span>
+        </div>
+        <partial name="_ProductoImagenInput" model="Model" />
+        <div class="col-md-4">
+            <label asp-for="Precio" class="form-label"></label>
+            <input asp-for="Precio" class="form-control" />
+            <span asp-validation-for="Precio" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Stock" class="form-label"></label>
+            <input asp-for="Stock" class="form-control" />
+            <span asp-validation-for="Stock" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="GarantiaMeses" class="form-label"></label>
+            <input asp-for="GarantiaMeses" class="form-control" />
+            <span asp-validation-for="GarantiaMeses" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="CategoriaId" class="form-label">Categoría</label>
+            <select asp-for="CategoriaId" class="form-select">
+                <option value="">Selecciona una categoría</option>
+                @foreach (var categoria in categorias)
+                {
+                    <option value="@categoria.Id">@categoria.Nombre</option>
+                }
+            </select>
+            <span asp-validation-for="CategoriaId" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 d-flex align-items-end">
+            <div class="form-check form-switch">
+                <input asp-for="Activo" class="form-check-input" />
+                <label asp-for="Activo" class="form-check-label"></label>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+        <a asp-action="MisProductos" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/product-image-input.js" asp-append-version="true"></script>
+}

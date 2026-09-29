@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Nexora.Data;
 using Nexora.Models;
+using Nexora.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddControllersWithViews ();
 builder.Services.AddRazorPages ();
+builder.Services.AddSingleton<AlmacenamientoImagenProducto>();
+builder.Services.AddSingleton<AlmacenamientoImagenTienda>();
 
 builder.Services.AddSession ( options =>
 {

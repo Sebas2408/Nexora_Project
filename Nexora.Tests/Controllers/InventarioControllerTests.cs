@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Nexora.Controllers;
 using Nexora.Data;
 using Nexora.Models;
+using Nexora.Services;
 using Xunit;
 
 namespace Nexora.Tests.Controllers;
@@ -11,6 +14,7 @@ public sealed class InventarioControllerTests : IDisposable
 {
     private readonly ApplicationDbContext _context;
     private readonly InventarioController _controller;
+    private readonly string _webRootPath;
 
     public InventarioControllerTests()
     {
@@ -19,7 +23,8 @@ public sealed class InventarioControllerTests : IDisposable
             .Options;
 
         _context = new ApplicationDbContext(options);
-        _controller = new InventarioController(_context);
+        _webRootPath = Path.Combine(Path.GetTempPath(), $"NexoraTests-{Guid.NewGuid():N}");
+        _controller = new InventarioController(_context, new AlmacenamientoImagenProducto(new TestWebHostEnvironment(_webRootPath)));
     }
 
     [Fact]
@@ -65,6 +70,17 @@ public sealed class InventarioControllerTests : IDisposable
     public void Dispose()
     {
         _context.Dispose();
+        if (Directory.Exists(_webRootPath)) Directory.Delete(_webRootPath, recursive: true);
+    }
+
+    private sealed class TestWebHostEnvironment(string rootPath) : IWebHostEnvironment
+    {
+        public string ApplicationName { get; set; } = "Nexora.Tests";
+        public IFileProvider ContentRootFileProvider { get; set; } = new NullFileProvider();
+        public string ContentRootPath { get; set; } = rootPath;
+        public string EnvironmentName { get; set; } = "Testing";
+        public IFileProvider WebRootFileProvider { get; set; } = new NullFileProvider();
+        public string WebRootPath { get; set; } = rootPath;
     }
 
     private static Producto CrearProducto(int id, string sku, string nombre)

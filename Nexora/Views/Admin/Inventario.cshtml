@@ -11,9 +11,15 @@
     <div class="admin-header">
         <div>
             <h1 class="admin-title">Gestor administrativo de inventario</h1>
-            <p class="admin-subtitle">Consulta de productos y existencias. Esta vista no modifica el inventario.</p>
+            <p class="admin-subtitle">Gestiona productos, existencias, categorías y vendedores responsables.</p>
         </div>
+        <a class="btn btn-primary" asp-action="CrearProducto"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i> Crear producto</a>
     </div>
+
+    @if (TempData["Mensaje"] is string mensaje)
+    {
+        <div class="alert alert-success" role="status">@mensaje</div>
+    }
 
     <div class="admin-toolbar card shadow-sm">
         <div class="card-body">
@@ -117,7 +123,12 @@
                                 <td>
                                     <span class="admin-badge @(producto.Activo ? "admin-badge-active" : "admin-badge-inactive")">@(producto.Activo ? "Activo" : "Inactivo")</span>
                                 </td>
-                                <td class="text-end"><a class="btn btn-sm btn-outline-primary" asp-action="DetalleProducto" asp-route-id="@producto.Id">Detalle</a></td>
+                                <td>
+                                    <div class="admin-actions">
+                                        <a class="btn btn-sm btn-outline-primary" asp-action="DetalleProducto" asp-route-id="@producto.Id" title="Ver detalle" aria-label="Ver detalle de @producto.Nombre"><i class="bi bi-eye" aria-hidden="true"></i></a>
+                                        <a class="btn btn-sm btn-primary" asp-action="EditarProducto" asp-route-id="@producto.Id" title="Editar" aria-label="Editar @producto.Nombre"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+                                    </div>
+                                </td>
                             </tr>
                         }
                     </tbody>
