@@ -1,99 +1,81 @@
 @model Nexora.Models.Producto
 
 @{
-    Layout = null;
+    ViewData["Title"] = "Detalle del producto";
 }
 
-<!DOCTYPE html>
+@section Styles {
+    <link rel="stylesheet" href="~/css/inventario.css" asp-append-version="true" />
+}
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Details</title>
-</head>
-<body>
+<div class="inventory-page">
+    <div class="container-fluid inventory-container">
+        <div class="inventory-card shadow-sm">
+            <div class="inventory-header">
+                <div>
+                    <p class="inventory-detail-eyebrow">Detalle del producto</p>
+                    <h1 class="inventory-title">@Model.Nombre</h1>
+                    <p class="inventory-subtitle">Referencia <span class="inventory-mono">@Model.SKU</span></p>
+                </div>
+                <div class="inventory-detail-header-actions">
+                    @if (Model.Activo)
+                    {
+                        <span class="badge inventory-badge inventory-badge-active"><i class="bi bi-check-circle" aria-hidden="true"></i> Activo</span>
+                    }
+                    else
+                    {
+                        <span class="badge inventory-badge inventory-badge-inactive"><i class="bi bi-x-circle" aria-hidden="true"></i> Inactivo</span>
+                    }
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary inventory-create-btn">
+                        <i class="bi bi-pencil" aria-hidden="true"></i> Editar producto
+                    </a>
+                </div>
+            </div>
 
-<div>
-    <h4>Producto</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Nombre)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Nombre)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Marca)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Marca)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Modelo)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Modelo)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Especificaciones)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Especificaciones)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SKU)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SKU)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Precio)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Precio)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Stock)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Stock)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.GarantiaMeses)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.GarantiaMeses)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ImagenUrl)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ImagenUrl)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Activo)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Activo)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Categoria)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Categoria.Nombre)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Vendedor)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Vendedor.ApplicationUserId)
-        </dd>
-    </dl>
+            <div class="inventory-detail-grid">
+                <section class="inventory-detail-panel">
+                    <div class="inventory-section-heading">
+                        <i class="bi bi-info-circle" aria-hidden="true"></i>
+                        <div>
+                            <h2>Información del producto</h2>
+                            <p>Identificación y características.</p>
+                        </div>
+                    </div>
+                    <dl class="inventory-detail-list">
+                        <div><dt>Marca</dt><dd>@Model.Marca</dd></div>
+                        <div><dt>Modelo</dt><dd>@(Model.Modelo ?? "—")</dd></div>
+                        <div><dt>Categoría</dt><dd>@(Model.Categoria?.Nombre ?? "—")</dd></div>
+                        <div><dt>Vendedor</dt><dd>@(Model.Vendedor?.NombreTienda ?? "—")</dd></div>
+                        <div class="inventory-detail-wide"><dt>Especificaciones</dt><dd>@Model.Especificaciones</dd></div>
+                        @if (!string.IsNullOrWhiteSpace(Model.ImagenUrl))
+                        {
+                            <div class="inventory-detail-wide"><dt>Imagen</dt><dd><a href="@Model.ImagenUrl" target="_blank" rel="noopener noreferrer">Ver imagen del producto</a></dd></div>
+                        }
+                    </dl>
+                </section>
+
+                <section class="inventory-detail-panel">
+                    <div class="inventory-section-heading">
+                        <i class="bi bi-archive" aria-hidden="true"></i>
+                        <div>
+                            <h2>Precio y disponibilidad</h2>
+                            <p>Existencias y condiciones comerciales.</p>
+                        </div>
+                    </div>
+                    <dl class="inventory-detail-list">
+                        <div><dt>Precio</dt><dd class="inventory-price">@Model.Precio.ToString("C")</dd></div>
+                        <div><dt>Stock</dt><dd>@Model.Stock unidades</dd></div>
+                        <div><dt>Garantía</dt><dd>@Model.GarantiaMeses meses</dd></div>
+                        <div><dt>SKU</dt><dd class="inventory-mono">@Model.SKU</dd></div>
+                    </dl>
+                </section>
+            </div>
+
+            <div class="inventory-form-actions inventory-detail-actions">
+                <a asp-action="Index" class="btn btn-outline-secondary inventory-secondary-btn">
+                    <i class="bi bi-arrow-left" aria-hidden="true"></i> Volver al inventario
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
-</body>
-</html>
