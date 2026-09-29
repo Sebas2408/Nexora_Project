@@ -1,0 +1,38 @@
+@model Nexora.ViewModels.AdminProductoDetalleViewModel
+@{
+    ViewData["Title"] = "Detalle administrativo del producto";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+}
+
+<div class="admin-page">
+    <a class="admin-back-link" asp-action="Inventario">← Volver al inventario</a>
+    <div class="admin-header">
+        <div>
+            <h1 class="admin-title">@Model.Nombre</h1>
+            <p class="admin-subtitle">Ficha informativa de solo lectura · SKU @Model.SKU</p>
+        </div>
+    </div>
+
+    <div class="admin-detail-card card shadow-sm">
+        <div class="card-body">
+            @if (!string.IsNullOrWhiteSpace(Model.ImagenUrl))
+            {
+                <img src="@Model.ImagenUrl" alt="@Model.Nombre" class="admin-detail-logo mb-3" />
+            }
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Marca</dt><dd class="col-sm-9">@Model.Marca</dd>
+                <dt class="col-sm-3">Modelo</dt><dd class="col-sm-9">@(Model.Modelo ?? "No registrado")</dd>
+                <dt class="col-sm-3">Categoría</dt><dd class="col-sm-9">@Model.Categoria</dd>
+                <dt class="col-sm-3">Vendedor</dt><dd class="col-sm-9">@Model.Vendedor</dd>
+                <dt class="col-sm-3">Precio</dt><dd class="col-sm-9">@Model.Precio.ToString("C")</dd>
+                <dt class="col-sm-3">Existencias</dt><dd class="col-sm-9">@Model.Stock</dd>
+                <dt class="col-sm-3">Estado</dt><dd class="col-sm-9">@(Model.Activo ? "Activo" : "Inactivo")</dd>
+                <dt class="col-sm-3">Garantía</dt><dd class="col-sm-9">@Model.GarantiaMeses meses</dd>
+                <dt class="col-sm-3">Especificaciones</dt><dd class="col-sm-9">@(Model.Especificaciones ?? "No registradas")</dd>
+            </dl>
+        </div>
+    </div>
+</div>

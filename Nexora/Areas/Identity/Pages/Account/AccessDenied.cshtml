@@ -1,0 +1,11 @@
+@page
+@{
+    ViewData["Title"] = "Acceso denegado";
+}
+
+<div class="container py-5">
+    <h1>Acceso denegado</h1>
+    <p>La cuenta autenticada no tiene permisos para acceder a este recurso.</p>
+    <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-primary">Iniciar sesión con otra cuenta</a>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Volver al inicio</a>
+</div>

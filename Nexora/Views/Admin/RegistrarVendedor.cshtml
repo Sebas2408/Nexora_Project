@@ -1,0 +1,82 @@
+@model Nexora.ViewModels.RegistroVendedorViewModel
+@{
+    ViewData["Title"] = "Registrar comerciante";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+}
+
+<div class="admin-page">
+    <a class="admin-back-link" asp-action="Vendedores">← Volver a vendedores</a>
+    <div class="admin-header">
+        <div>
+            <h1 class="admin-title">Registrar nuevo comerciante</h1>
+            <p class="admin-subtitle">Crea la cuenta y el perfil del vendedor en la plataforma.</p>
+        </div>
+    </div>
+
+    <div class="admin-detail-card card shadow-sm">
+        <div class="card-body">
+            <form asp-action="RegistrarVendedor" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="NombreTienda" class="form-label"></label>
+                        <input asp-for="NombreTienda" class="form-control" autocomplete="organization" />
+                        <span asp-validation-for="NombreTienda" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" autocomplete="email" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Descripcion" class="form-label"></label>
+                        <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Descripcion" class="text-danger"></span>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Logo" class="form-label"></label>
+                        <input asp-for="Logo" class="form-control" placeholder="https://... o /images/..." />
+                        <span asp-validation-for="Logo" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Nombre" class="form-label"></label>
+                        <input asp-for="Nombre" class="form-control" autocomplete="given-name" />
+                        <span asp-validation-for="Nombre" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Apellido" class="form-label"></label>
+                        <input asp-for="Apellido" class="form-control" autocomplete="family-name" />
+                        <span asp-validation-for="Apellido" class="text-danger"></span>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Direccion" class="form-label"></label>
+                        <input asp-for="Direccion" class="form-control" autocomplete="street-address" />
+                        <span asp-validation-for="Direccion" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Password" class="form-label"></label>
+                        <input asp-for="Password" class="form-control" autocomplete="new-password" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="ConfirmarPassword" class="form-label"></label>
+                        <input asp-for="ConfirmarPassword" class="form-control" autocomplete="new-password" />
+                        <span asp-validation-for="ConfirmarPassword" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Registrar comerciante</button>
+                    <a asp-action="Vendedores" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

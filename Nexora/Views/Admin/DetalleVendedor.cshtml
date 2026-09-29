@@ -26,16 +26,19 @@
                     }
                 </div>
 
-                <form asp-action="ToggleActivo" asp-route-id="@Model.Id" method="post" class="admin-detail-toggle">
+                <a class="btn btn-outline-primary" asp-action="EditarVendedor" asp-route-id="@Model.Id">Editar ficha</a>
+
+                <form asp-action="CambiarEstadoVendedor" asp-route-id="@Model.Id" method="post" class="admin-detail-toggle">
                     @Html.AntiForgeryToken()
+                    <input type="hidden" name="activo" value="@(!Model.Activo).ToString().ToLowerInvariant()" />
                     <input type="hidden" name="returnUrl" value="@Url.Action("DetalleVendedor", "Admin", new { id = Model.Id })" />
                     @if (Model.Activo)
                     {
-                        <button type="submit" class="btn btn-outline-danger">Desactivar vendedor</button>
+                        <button type="submit" class="btn btn-outline-danger" onclick="return confirm('¿Confirmas la suspensión de este vendedor?');">Suspender vendedor</button>
                     }
                     else
                     {
-                        <button type="submit" class="btn btn-outline-success">Activar vendedor</button>
+                        <button type="submit" class="btn btn-outline-success" onclick="return confirm('¿Confirmas la reactivación de este vendedor?');">Reactivar vendedor</button>
                     }
                 </form>
             </div>
@@ -58,8 +61,22 @@
                     <span class="admin-detail-label">Dirección</span>
                     <span class="admin-detail-value">@(Model.Direccion ?? "No registrada")</span>
                 </div>
+                <div>
+                    <span class="admin-detail-label">Fecha de registro</span>
+                    <span class="admin-detail-value">@(Model.FechaRegistro?.ToLocalTime().ToString("dd MMMM yyyy") ?? "No disponible")</span>
+                </div>
             </div>
         </div>
+    </div>
+
+    <div class="admin-stats mt-3">
+        <div class="admin-stat-card"><span class="admin-stat-value">@Model.Productos.Count</span><span class="admin-stat-label">Productos</span></div>
+        <div class="admin-stat-card admin-stat-active"><span class="admin-stat-value">@Model.ProductosActivos</span><span class="admin-stat-label">Productos activos</span></div>
+        <div class="admin-stat-card admin-stat-inactive"><span class="admin-stat-value">@Model.ProductosInactivos</span><span class="admin-stat-label">Productos inactivos</span></div>
+        <div class="admin-stat-card"><span class="admin-stat-value">@Model.PedidosAsociados</span><span class="admin-stat-label">Pedidos asociados</span></div>
+        <div class="admin-stat-card"><span class="admin-stat-value">@Model.UnidadesVendidas</span><span class="admin-stat-label">Unidades vendidas</span></div>
+        <div class="admin-stat-card"><span class="admin-stat-value">@Model.IngresosHistoricos.ToString("C")</span><span class="admin-stat-label">Ingresos no cancelados</span></div>
+        <div class="admin-stat-card"><span class="admin-stat-value">@(Model.ActividadReciente?.ToLocalTime().ToString("dd MMM yyyy") ?? "—")</span><span class="admin-stat-label">Actividad reciente</span></div>
     </div>
 
     <h2 class="admin-section-title">Catálogo del vendedor (@Model.Productos.Count)</h2>

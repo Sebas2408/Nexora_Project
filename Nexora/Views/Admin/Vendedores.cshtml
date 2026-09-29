@@ -1,10 +1,7 @@
-@model List<Nexora.ViewModels.VendedorAdminViewModel>
+@model Nexora.ViewModels.AdminVendedoresViewModel
 @{
     ViewData["Title"] = "Panel Admin - Vendedores";
-    string query = ViewBag.Query as string ?? "";
-    int totalVendedores = ViewBag.TotalVendedores ?? 0;
-    int totalActivos = ViewBag.TotalActivos ?? 0;
-    int totalInactivos = ViewBag.TotalInactivos ?? 0;
+    string query = Model.Query ?? "";
 }
 
 @section Styles {
@@ -17,6 +14,7 @@
             <h1 class="admin-title">Panel de administración</h1>
             <p class="admin-subtitle">Gestión y visualización de vendedores registrados</p>
         </div>
+        <a class="btn btn-dark" asp-action="RegistrarVendedor">+ Registrar nuevo comerciante</a>
     </div>
 
     @if (TempData["Mensaje"] != null)
@@ -26,15 +24,15 @@
 
     <div class="admin-stats">
         <div class="admin-stat-card">
-            <span class="admin-stat-value">@totalVendedores</span>
+            <span class="admin-stat-value">@Model.TotalVendedores</span>
             <span class="admin-stat-label">Total de vendedores</span>
         </div>
         <div class="admin-stat-card admin-stat-active">
-            <span class="admin-stat-value">@totalActivos</span>
+            <span class="admin-stat-value">@Model.TotalActivos</span>
             <span class="admin-stat-label">Activos</span>
         </div>
         <div class="admin-stat-card admin-stat-inactive">
-            <span class="admin-stat-value">@totalInactivos</span>
+            <span class="admin-stat-value">@Model.TotalSuspendidos</span>
             <span class="admin-stat-label">Inactivos</span>
         </div>
     </div>
@@ -44,7 +42,19 @@
             <form method="get" class="admin-search-form">
                 <div class="input-group">
                     <span class="input-group-text admin-search-icon">⌕</span>
-                    <input type="text" name="q" value="@query" class="form-control" placeholder="Buscar por tienda, propietario o correo..." />
+                    <input type="text" name="q" value="@query" class="form-control" placeholder="Buscar empresa, contacto, correo o dominio..." />
+                    <select name="activo" class="form-select" aria-label="Filtrar por estado">
+                        <option value="">Todos los estados</option>
+                        <option value="true" selected="@(Model.Activo == true)">Activo</option>
+                        <option value="false" selected="@(Model.Activo == false)">Suspendido</option>
+                    </select>
+                    <select name="orden" class="form-select" aria-label="Ordenar por">
+                        <option value="tienda" selected="@(Model.Orden == "tienda")">Empresa</option>
+                        <option value="fecha" selected="@(Model.Orden == "fecha")">Fecha de registro</option>
+                        <option value="productos" selected="@(Model.Orden == "productos")">Productos</option>
+                        <option value="estado" selected="@(Model.Orden == "estado")">Estado</option>
+                    </select>
+                    <input type="hidden" name="ascendente" value="@Model.Ascendente.ToString().ToLowerInvariant()" />
                     <button type="submit" class="btn btn-primary">Buscar</button>
                     @if (!string.IsNullOrWhiteSpace(query))
                     {
@@ -56,7 +66,7 @@
     </div>
 
     <div class="admin-table-card card shadow-sm">
-        @if (!Model.Any())
+        @if (!Model.Vendedores.Any())
         {
             <div class="admin-empty">
                 <p class="admin-empty-title">No se encontraron vendedores.</p>
@@ -69,22 +79,25 @@
                 <table class="table admin-table align-middle mb-0">
                     <thead>
                         <tr>
-                            <th>Tienda</th>
-                            <th>Propietario</th>
-                            <th>Correo</th>
+                            <th>Vendedor / dominio</th>
+                            <th>Fecha de registro</th>
                             <th class="text-center">Productos</th>
+                            <th class="text-end">Ingresos históricos</th>
                             <th class="text-center">Estado</th>
                             <th class="text-end">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var v in Model)
+                        @foreach (var v in Model.Vendedores)
                         {
                             <tr>
-                                <td class="fw-semibold">@v.NombreTienda</td>
-                                <td>@v.NombreCompleto</td>
-                                <td>@v.Email</td>
+                                <td>
+                                    <div class="fw-semibold">@v.NombreTienda</div>
+                                    <small class="text-muted">@v.NombreCompleto · @v.Email</small>
+                                </td>
+                                <td>@(v.FechaRegistro?.ToLocalTime().ToString("dd MMM yyyy") ?? "No disponible")</td>
                                 <td class="text-center">@v.CantidadProductos</td>
+                                <td class="text-end">@v.IngresosHistoricos.ToString("C")</td>
                                 <td class="text-center">
                                     @if (v.Activo)
                                     {
@@ -98,16 +111,18 @@
                                 <td class="text-end">
                                     <div class="admin-actions">
                                         <a class="btn btn-sm btn-outline-primary" asp-action="DetalleVendedor" asp-route-id="@v.Id">Ver detalle</a>
-                                        <form asp-action="ToggleActivo" asp-route-id="@v.Id" method="post" class="d-inline">
+                                        <a class="btn btn-sm btn-outline-secondary" asp-action="EditarVendedor" asp-route-id="@v.Id">Editar</a>
+                                        <form asp-action="CambiarEstadoVendedor" asp-route-id="@v.Id" method="post" class="d-inline">
                                             @Html.AntiForgeryToken()
-                                            <input type="hidden" name="returnUrl" value="@Url.Action("Vendedores", "Admin", new { q = query })" />
+                                            <input type="hidden" name="activo" value="@(!v.Activo).ToString().ToLowerInvariant()" />
+                                            <input type="hidden" name="returnUrl" value="@Url.Action("Vendedores", "Admin", new { q = query, activo = Model.Activo, orden = Model.Orden, ascendente = Model.Ascendente, pagina = Model.Pagina })" />
                                             @if (v.Activo)
                                             {
-                                                <button type="submit" class="btn btn-sm btn-outline-danger">Desactivar</button>
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Confirmas la suspensión de este vendedor?');">Suspender</button>
                                             }
                                             else
                                             {
-                                                <button type="submit" class="btn btn-sm btn-outline-success">Activar</button>
+                                                <button type="submit" class="btn btn-sm btn-outline-success" onclick="return confirm('¿Confirmas la reactivación de este vendedor?');">Reactivar</button>
                                             }
                                         </form>
                                     </div>
@@ -119,4 +134,18 @@
             </div>
         }
     </div>
+    @if (Model.TotalPaginas > 1)
+    {
+        <nav aria-label="Paginación de vendedores" class="mt-3">
+            <ul class="pagination justify-content-end">
+                <li class="page-item @(Model.Pagina <= 1 ? "disabled" : "")">
+                    <a class="page-link" asp-action="Vendedores" asp-route-q="@Model.Query" asp-route-activo="@Model.Activo" asp-route-orden="@Model.Orden" asp-route-ascendente="@Model.Ascendente" asp-route-pagina="@(Model.Pagina - 1)">Anterior</a>
+                </li>
+                <li class="page-item disabled"><span class="page-link">Página @Model.Pagina de @Model.TotalPaginas (@Model.TotalResultados)</span></li>
+                <li class="page-item @(Model.Pagina >= Model.TotalPaginas ? "disabled" : "")">
+                    <a class="page-link" asp-action="Vendedores" asp-route-q="@Model.Query" asp-route-activo="@Model.Activo" asp-route-orden="@Model.Orden" asp-route-ascendente="@Model.Ascendente" asp-route-pagina="@(Model.Pagina + 1)">Siguiente</a>
+                </li>
+            </ul>
+        </nav>
+    }
 </div>

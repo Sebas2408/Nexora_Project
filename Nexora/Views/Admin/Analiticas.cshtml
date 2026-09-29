@@ -1,0 +1,127 @@
+@model Nexora.ViewModels.AdminAnaliticasViewModel
+@{
+    ViewData["Title"] = "Analíticas del sistema";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+}
+
+<div class="admin-page">
+    <div class="admin-header">
+        <div>
+            <h1 class="admin-title">Analíticas del sistema</h1>
+            <p class="admin-subtitle">Indicadores calculados desde vendedores, productos y pedidos registrados.</p>
+        </div>
+    </div>
+
+    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+    <div class="admin-toolbar card shadow-sm mb-3">
+        <div class="card-body">
+            <form method="get" asp-action="Analiticas" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label asp-for="Desde" class="form-label">Desde</label>
+                    <input asp-for="Desde" type="date" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Hasta" class="form-label">Hasta</label>
+                    <input asp-for="Hasta" type="date" class="form-control" />
+                </div>
+                <div class="col-md-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Aplicar período</button>
+                    <a asp-action="Analiticas" class="btn btn-outline-secondary">Todo el período</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <h2 class="admin-section-title">Vendedores y catálogo</h2>
+    <div class="admin-stats">
+        <div class="admin-stat-card"><span class="admin-stat-value">@Model.TotalVendedores</span><span class="admin-stat-label">Vendedores</span></div>
+        <div class="admin-stat-card admin-stat-active"><span class="admin-stat-value">@Model.VendedoresActivos</span><span class="admin-stat-label">Vendedores activos</span></div>
+        <div class="admin-stat-card admin-stat-inactive"><span class="admin-stat-value">@Model.VendedoresSuspendidos</span><span class="admin-stat-label">Vendedores suspendidos</span></div>
+        <div class="admin-stat-card"><span class="admin-stat-value">@Model.TotalProductos</span><span class="admin-stat-label">Productos</span></div>
+        <div class="admin-stat-card admin-stat-active"><span class="admin-stat-value">@Model.ProductosActivos</span><span class="admin-stat-label">Productos activos</span></div>
+        <div class="admin-stat-card admin-stat-inactive"><span class="admin-stat-value">@Model.ProductosInactivos</span><span class="admin-stat-label">Productos inactivos</span></div>
+        <div class="admin-stat-card"><span class="admin-stat-value">@Model.ExistenciasBajas</span><span class="admin-stat-label">Stock bajo (≤ @Model.UmbralStockBajo)</span></div>
+        <div class="admin-stat-card"><span class="admin-stat-value">@Model.SinExistencias</span><span class="admin-stat-label">Sin existencias</span></div>
+    </div>
+
+    <h2 class="admin-section-title mt-4">Pedidos e ingresos</h2>
+    <div class="admin-stats">
+        <div class="admin-stat-card"><span class="admin-stat-value">@Model.TotalPedidos</span><span class="admin-stat-label">Pedidos del período</span></div>
+        <div class="admin-stat-card"><span class="admin-stat-value">@Model.Ingresos.ToString("C")</span><span class="admin-stat-label">Ingresos (excluye pedidos cancelados)</span></div>
+    </div>
+    <p class="text-muted small">El modelo no registra estado de pago; los ingresos se calculan con el total de pedidos no cancelados.</p>
+
+    <div class="row g-3 mt-2">
+        <div class="col-lg-4">
+            <div class="admin-table-card card shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h5">Pedidos por estado</h2>
+                    <div class="table-responsive">
+                        <table class="table admin-table align-middle mb-0">
+                            <thead><tr><th>Estado</th><th class="text-end">Pedidos</th></tr></thead>
+                            <tbody>
+                                @foreach (var estado in Model.PedidosPorEstado)
+                                {
+                                    <tr><td>@estado.Estado</td><td class="text-end">@estado.Cantidad</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="admin-table-card card shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h5">Vendedores con mayores ingresos</h2>
+                    @if (Model.MejoresVendedores.Count == 0)
+                    {
+                        <p class="text-muted mb-0">No hay ventas válidas para el período.</p>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table admin-table align-middle mb-0">
+                                <thead><tr><th>Vendedor</th><th>Unidades</th><th class="text-end">Ingresos</th></tr></thead>
+                                <tbody>
+                                    @foreach (var vendedor in Model.MejoresVendedores)
+                                    {
+                                        <tr><td>@vendedor.Nombre</td><td>@vendedor.UnidadesVendidas</td><td class="text-end">@vendedor.Ingresos.ToString("C")</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="admin-table-card card shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h5">Productos más vendidos</h2>
+                    @if (Model.MejoresProductos.Count == 0)
+                    {
+                        <p class="text-muted mb-0">No hay ventas válidas para el período.</p>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table admin-table align-middle mb-0">
+                                <thead><tr><th>Producto</th><th>Vendedor</th><th>Unidades</th></tr></thead>
+                                <tbody>
+                                    @foreach (var producto in Model.MejoresProductos)
+                                    {
+                                        <tr><td>@producto.Nombre</td><td>@producto.Vendedor</td><td>@producto.UnidadesVendidas</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

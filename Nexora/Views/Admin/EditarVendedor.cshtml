@@ -1,0 +1,73 @@
+@model Nexora.ViewModels.EditarVendedorViewModel
+@{
+    ViewData["Title"] = "Editar vendedor";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+}
+
+<div class="admin-page">
+    <a class="admin-back-link" asp-action="DetalleVendedor" asp-route-id="@Model.Id">← Volver al perfil del vendedor</a>
+    <div class="admin-header">
+        <div>
+            <h1 class="admin-title">Editar datos del comerciante</h1>
+            <p class="admin-subtitle">Actualiza la ficha empresarial y los datos de contacto.</p>
+        </div>
+    </div>
+
+    <div class="admin-detail-card card shadow-sm">
+        <div class="card-body">
+            <form asp-action="EditarVendedor" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+                <input asp-for="Id" type="hidden" />
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Correo de acceso</label>
+                        <input value="@ViewBag.Correo" class="form-control" readonly />
+                        <div class="form-text">El email de Identity no se cambia desde la edición general.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="NombreTienda" class="form-label"></label>
+                        <input asp-for="NombreTienda" class="form-control" />
+                        <span asp-validation-for="NombreTienda" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Nombre" class="form-label"></label>
+                        <input asp-for="Nombre" class="form-control" autocomplete="given-name" />
+                        <span asp-validation-for="Nombre" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Apellido" class="form-label"></label>
+                        <input asp-for="Apellido" class="form-control" autocomplete="family-name" />
+                        <span asp-validation-for="Apellido" class="text-danger"></span>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Direccion" class="form-label"></label>
+                        <input asp-for="Direccion" class="form-control" autocomplete="street-address" />
+                        <span asp-validation-for="Direccion" class="text-danger"></span>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Descripcion" class="form-label"></label>
+                        <textarea asp-for="Descripcion" class="form-control" rows="4"></textarea>
+                        <span asp-validation-for="Descripcion" class="text-danger"></span>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Logo" class="form-label"></label>
+                        <input asp-for="Logo" class="form-control" placeholder="https://... o /images/..." />
+                        <span asp-validation-for="Logo" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                    <a asp-action="DetalleVendedor" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
