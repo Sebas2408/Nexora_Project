@@ -24,7 +24,7 @@ namespace Nexora.Controllers
             var query = _db.Productos
                 .Include(p => p.Categoria)
                 .Include(p => p.Vendedor)
-                .Where(p => p.Activo);
+                .Where(p => p.Activo && p.Vendedor != null && p.Vendedor.Activo);
 
             if ( categoriaId.HasValue )
             {
@@ -99,7 +99,7 @@ namespace Nexora.Controllers
             var producto = await _db.Productos
                 .Include(p => p.Categoria)
                 .Include(p => p.Vendedor)
-                .FirstOrDefaultAsync(p => p.Id == id && p.Activo);
+                .FirstOrDefaultAsync(p => p.Id == id && p.Activo && p.Vendedor != null && p.Vendedor.Activo);
 
             if ( producto == null ) return NotFound ();
 

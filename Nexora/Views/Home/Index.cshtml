@@ -79,7 +79,7 @@
                                     <span class="catalog-stars">☆☆☆☆☆</span>
                                     <span class="catalog-rating-value">(4.8)</span>
                                 </div>
-                                <span class="catalog-stock">En stock</span>
+                                <span class="catalog-stock">@(p.Stock > 0 ? $"{p.Stock} disponible(s)" : "Agotado")</span>
                             </div>
 
                             <h5 class="catalog-card-title">@p.Nombre</h5>
@@ -89,12 +89,15 @@
                                 <p class="catalog-price">@p.Precio.ToString("C")</p>
                                 <div class="catalog-card-actions">
                                     <a class="btn btn-sm catalog-button catalog-button-secondary" href="@Url.Action("Detalle", "Home", new { id = p.Id })">Ver detalle</a>
-                                    <form asp-controller="Cart" asp-action="Agregar" method="post" class="d-inline">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="productoId" value="@p.Id" />
-                                        <input type="hidden" name="cantidad" value="1" />
-                                        <button type="submit" class="btn btn-sm catalog-button catalog-button-primary">Agregar al carrito</button>
-                                    </form>
+                                    @if (p.Stock > 0)
+                                    {
+                                        <form asp-controller="Cart" asp-action="Agregar" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="productoId" value="@p.Id" />
+                                            <input type="hidden" name="cantidad" value="1" />
+                                            <button type="submit" class="btn btn-sm catalog-button catalog-button-primary">Agregar al carrito</button>
+                                        </form>
+                                    }
                                 </div>
                             </div>
                         </div>

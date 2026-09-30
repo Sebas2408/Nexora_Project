@@ -1,0 +1,34 @@
+@model List<Nexora.ViewModels.PedidoResumenViewModel>
+@{
+    ViewData["Title"] = "Mis pedidos";
+}
+
+<div class="py-4">
+    <h1 class="h3 mb-4">Mis pedidos</h1>
+    @if (!Model.Any())
+    {
+        <div class="alert alert-secondary">Aún no has realizado pedidos.</div>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Explorar catálogo</a>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead><tr><th>Pedido</th><th>Fecha</th><th>Estado</th><th>Artículos</th><th>Total</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var pedido in Model)
+                {
+                    <tr>
+                        <td>#@pedido.Id</td>
+                        <td>@pedido.FechaCreacion.ToLocalTime().ToString("g")</td>
+                        <td>@pedido.Estado</td>
+                        <td>@pedido.CantidadArticulos</td>
+                        <td>@pedido.Total.ToString("C")</td>
+                        <td><a asp-action="Detalle" asp-route-id="@pedido.Id" class="btn btn-sm btn-outline-primary">Ver detalle</a></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

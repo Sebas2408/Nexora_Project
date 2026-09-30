@@ -1,0 +1,6 @@
+@model Nexora.Models.Orden
+@{
+    ViewData["Title"] = "Compra confirmada";
+}
+
+<div class="py-5 text-center"><h1 class="h3 text-success">¡Compra confirmada!</h1><p>Tu pedido <strong>#@Model.Id</strong> fue registrado con estado <strong>@Model.Estado</strong>.</p><p>Total: <strong>@Model.Total.ToString("C")</strong></p><a asp-controller="Pedidos" asp-action="Detalle" asp-route-id="@Model.Id" class="btn btn-primary">Ver mi pedido</a><a asp-controller="Home" asp-action="Index" class="btn btn-link">Seguir comprando</a></div>

@@ -43,6 +43,9 @@
                             <li class="nav-item">
                                 <a class="nav-link custom-nav-link" asp-area="Identity" asp-page="/Account/Manage/Index">Mi cuenta</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link custom-nav-link" asp-controller="Pedidos" asp-action="Index">Mis pedidos</a>
+                            </li>
 
                             @if (User.IsInRole("Vendedor"))
                             {
