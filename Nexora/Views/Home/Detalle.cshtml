@@ -20,13 +20,20 @@
     <h5>Especificaciones</h5>
     <p>@Model.Especificaciones</p>
 
-    <form asp-controller="Cart" asp-action="Agregar" method="post" class="d-flex align-items-center">
-        @Html.AntiForgeryToken()
-        <input type="hidden" name="productoId" value="@Model.Id" />
-        <label class="me-2">Cantidad</label>
-        <input type="number" name="cantidad" value="1" min="1" max="@Model.Stock" class="form-control w-25 me-2" />
-        <button type="submit" class="btn btn-success">Agregar al carrito</button>
-    </form>
+    @if (Model.Stock > 0)
+    {
+        <form asp-controller="Cart" asp-action="Agregar" method="post" class="d-flex align-items-center">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="productoId" value="@Model.Id" />
+            <label class="me-2">Cantidad</label>
+            <input type="number" name="cantidad" value="1" min="1" max="@Model.Stock" class="form-control w-25 me-2" />
+            <button type="submit" class="btn btn-success">Agregar al carrito</button>
+        </form>
+    }
+    else
+    {
+        <div class="alert alert-warning">Este producto está agotado.</div>
+    }
 </div>
 </div>
 

@@ -37,6 +37,7 @@ builder.Services.AddControllersWithViews ();
 builder.Services.AddRazorPages ();
 builder.Services.AddSingleton<AlmacenamientoImagenProducto>();
 builder.Services.AddSingleton<AlmacenamientoImagenTienda>();
+builder.Services.AddScoped<ServicioCarrito>();
 
 builder.Services.AddSession ( options =>
 {

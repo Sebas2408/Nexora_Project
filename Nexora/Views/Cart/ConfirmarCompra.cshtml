@@ -1,0 +1,19 @@
+@model Nexora.ViewModels.ConfirmarCompraViewModel
+@{
+    ViewData["Title"] = "Confirmar compra";
+}
+
+<div class="row py-4"><div class="col-lg-7">
+    <h1 class="h3 mb-4">Confirmar compra</h1>
+    <form asp-action="ConfirmarCompra" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="mb-3"><label asp-for="DireccionEnvio" class="form-label"></label><textarea asp-for="DireccionEnvio" class="form-control" rows="3"></textarea><span asp-validation-for="DireccionEnvio" class="text-danger"></span></div>
+        <div class="mb-4"><label asp-for="MetodoPago" class="form-label"></label><select asp-for="MetodoPago" class="form-select"><option value="">Selecciona una opción</option><option>Tarjeta</option><option>Transferencia</option><option>Contra entrega</option></select><span asp-validation-for="MetodoPago" class="text-danger"></span></div>
+        <button type="submit" class="btn btn-primary">Confirmar pedido</button><a asp-action="Index" class="btn btn-link">Volver al carrito</a>
+    </form>
+</div><div class="col-lg-5"><div class="card"><div class="card-body"><h2 class="h5">Tu pedido</h2>
+    @foreach (var item in Model.Carrito.Items) { <div class="d-flex justify-content-between mb-2"><span>@item.Nombre × @item.Cantidad</span><span>@item.Subtotal.ToString("C")</span></div> }
+    <hr /><div class="d-flex justify-content-between fw-bold"><span>Total</span><span>@Model.Carrito.Total.ToString("C")</span></div>
+</div></div></div></div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

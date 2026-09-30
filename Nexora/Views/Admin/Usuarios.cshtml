@@ -1,0 +1,18 @@
+@model Nexora.ViewModels.AdminUsuariosViewModel
+@{
+    ViewData["Title"] = "Usuarios y roles";
+}
+
+<div class="py-3">
+    <div class="d-flex justify-content-between align-items-center mb-3"><h1 class="h3 mb-0">Usuarios y roles</h1><a asp-controller="Usuarios" asp-action="Crear" class="btn btn-primary">Crear usuario</a></div>
+    @if (TempData["Mensaje"] is string mensaje) { <div class="alert alert-success">@mensaje</div> }
+    @if (TempData["Error"] is string error) { <div class="alert alert-danger">@error</div> }
+    <form method="get" class="row g-2 mb-3"><div class="col-md-5"><input class="form-control" name="q" value="@Model.Query" placeholder="Buscar por nombre o correo" /></div><div class="col-auto"><button class="btn btn-outline-primary">Buscar</button></div></form>
+    <div class="table-responsive"><table class="table align-middle"><thead><tr><th>Usuario</th><th>Correo</th><th>Rol</th><th>Estado</th><th></th></tr></thead><tbody>
+    @foreach (var usuario in Model.Usuarios)
+    {
+        <tr><td>@usuario.NombreCompleto</td><td>@usuario.Email</td><td>@usuario.Rol</td><td>@(usuario.Bloqueado ? "Bloqueado" : "Activo")</td><td class="d-flex gap-1"><a class="btn btn-sm btn-outline-secondary" asp-controller="Usuarios" asp-action="Detalle" asp-route-id="@usuario.Id">Ver</a><a class="btn btn-sm btn-outline-primary" asp-controller="Usuarios" asp-action="Editar" asp-route-id="@usuario.Id">Editar</a><form asp-controller="Usuarios" asp-action="CambiarBloqueo" asp-route-id="@usuario.Id" method="post">@Html.AntiForgeryToken()<button class="btn btn-sm @(usuario.Bloqueado ? "btn-outline-success" : "btn-outline-danger")">@(usuario.Bloqueado ? "Desbloquear" : "Bloquear")</button></form></td></tr>
+    }
+    </tbody></table></div>
+    @if (Model.TotalPaginas > 1) { <nav><ul class="pagination">@for (var pagina = 1; pagina <= Model.TotalPaginas; pagina++) { <li class="page-item @(pagina == Model.Pagina ? "active" : "")"><a class="page-link" asp-route-q="@Model.Query" asp-route-pagina="@pagina">@pagina</a></li> }</ul></nav> }
+</div>
