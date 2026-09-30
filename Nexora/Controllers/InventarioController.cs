@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -12,6 +13,7 @@ using Nexora.Services;
 
 namespace Nexora.Controllers
 {
+    [Authorize(Roles = "Administrador")]
     public class InventarioController : Controller
     {
         private readonly ApplicationDbContext _context;
