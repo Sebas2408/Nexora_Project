@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Nexora.Data;
 using Nexora.Models;
@@ -24,10 +25,47 @@ namespace Nexora.Controllers
         }
 
         // GET: Inventario
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? q, int? categoriaId, string? estado)
         {
-            var applicationDbContext = _context.Productos.Include(p => p.Categoria).Include(p => p.Vendedor);
-            return View(await applicationDbContext.ToListAsync());
+            var query = _context.Productos
+                .Include(p => p.Categoria)
+                .Include(p => p.Vendedor)
+                .AsQueryable();
+
+            // Búsqueda por SKU, nombre o modelo
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var t = q.Trim();
+                query = query.Where(p => p.SKU.Contains(t) || p.Nombre.Contains(t) || p.Modelo.Contains(t));
+            }
+
+            // Filtrado por categoría
+            if (categoriaId.HasValue)
+            {
+                query = query.Where(p => p.CategoriaId == categoriaId.Value);
+            }
+
+            // Filtrado por estado activo/inactivo
+            if (!string.IsNullOrWhiteSpace(estado))
+            {
+                if (estado.Equals("activo", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = query.Where(p => p.Activo);
+                }
+                else if (estado.Equals("inactivo", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = query.Where(p => !p.Activo);
+                }
+            }
+
+            query = query.OrderBy(p => p.Nombre);
+
+            ViewBag.Categorias = await _context.Categorias.OrderBy(c => c.Nombre).ToListAsync();
+            ViewBag.Query = q ?? string.Empty;
+            ViewBag.CategoriaSeleccionada = categoriaId;
+            ViewBag.EstadoSeleccionado = estado ?? string.Empty;
+
+            return View(await query.ToListAsync());
         }
 
         // GET: Inventario/Details/5
@@ -68,10 +106,18 @@ namespace Nexora.Controllers
             IFormFile? imagenArchivo = null,
             string modoImagen = "url")
         {
+            NormalizarProducto(producto);
+            await ValidarProductoAsync(producto);
+
             var resultadoImagen = await _almacenamientoImagen.ResolverAsync(modoImagen, producto.ImagenUrl, imagenArchivo, null, esNuevo: true);
             if (!resultadoImagen.Correcto)
             {
                 ModelState.AddModelError(nameof(producto.ImagenUrl), resultadoImagen.Error!);
+            }
+
+            if (ModelState.IsValid && await _context.Productos.AnyAsync(p => p.SKU == producto.SKU))
+            {
+                ModelState.AddModelError(nameof(producto.SKU), "Ya existe un producto con este SKU.");
             }
 
             if (ModelState.IsValid)
@@ -83,10 +129,11 @@ namespace Nexora.Controllers
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
                 }
-                catch
+                catch (DbUpdateException ex) when (ex.InnerException is SqlException sqlException && (sqlException.Number == 2601 || sqlException.Number == 2627))
                 {
+                    _context.Entry(producto).State = EntityState.Detached;
+                    ModelState.AddModelError(nameof(producto.SKU), "Ya existe un producto con este SKU.");
                     _almacenamientoImagen.EliminarImagenSubida(resultadoImagen.Url);
-                    throw;
                 }
             }
             else
@@ -139,11 +186,20 @@ namespace Nexora.Controllers
                 return NotFound();
             }
 
+            NormalizarProducto(producto);
+            await ValidarProductoAsync(producto, producto.Id);
+
             var imagenAnterior = productoExistente.ImagenUrl;
             var resultadoImagen = await _almacenamientoImagen.ResolverAsync(modoImagen, producto.ImagenUrl, imagenArchivo, imagenAnterior, esNuevo: false);
             if (!resultadoImagen.Correcto)
             {
                 ModelState.AddModelError(nameof(producto.ImagenUrl), resultadoImagen.Error!);
+            }
+
+            if (ModelState.IsValid && await _context.Productos
+                .AnyAsync(p => p.SKU == producto.SKU && p.Id != producto.Id))
+            {
+                ModelState.AddModelError(nameof(producto.SKU), "Ya existe otro producto con este SKU.");
             }
 
             if (ModelState.IsValid)
@@ -244,6 +300,38 @@ namespace Nexora.Controllers
         private bool ProductoExists(int id)
         {
             return _context.Productos.Any(e => e.Id == id);
+        }
+
+        private static void NormalizarProducto(Producto producto)
+        {
+            producto.Nombre = producto.Nombre?.Trim() ?? string.Empty;
+            producto.Marca = producto.Marca?.Trim() ?? string.Empty;
+            producto.Modelo = string.IsNullOrWhiteSpace(producto.Modelo) ? null : producto.Modelo.Trim();
+            producto.Especificaciones = producto.Especificaciones?.Trim() ?? string.Empty;
+            producto.SKU = producto.SKU?.Trim() ?? string.Empty;
+        }
+
+        private async Task ValidarProductoAsync(Producto producto, int? idExcluir = null)
+        {
+            if (string.IsNullOrWhiteSpace(producto.Nombre))
+                ModelState.AddModelError(nameof(producto.Nombre), "El nombre del producto es obligatorio.");
+
+            if (string.IsNullOrWhiteSpace(producto.Marca))
+                ModelState.AddModelError(nameof(producto.Marca), "La marca es obligatoria.");
+
+            if (string.IsNullOrWhiteSpace(producto.Especificaciones))
+                ModelState.AddModelError(nameof(producto.Especificaciones), "Las especificaciones son obligatorias.");
+
+            if (string.IsNullOrWhiteSpace(producto.SKU))
+                ModelState.AddModelError(nameof(producto.SKU), "El SKU es obligatorio.");
+            else if (await _context.Productos.AnyAsync(p => p.SKU == producto.SKU && p.Id != idExcluir))
+                ModelState.AddModelError(nameof(producto.SKU), "Ya existe un producto con este SKU.");
+
+            if (producto.CategoriaId <= 0 || !await _context.Categorias.AnyAsync(c => c.Id == producto.CategoriaId))
+                ModelState.AddModelError(nameof(producto.CategoriaId), "Selecciona una categoría válida.");
+
+            if (producto.VendedorId <= 0 || !await _context.Vendedores.AnyAsync(v => v.Id == producto.VendedorId))
+                ModelState.AddModelError(nameof(producto.VendedorId), "Selecciona un vendedor válido.");
         }
     }
 }

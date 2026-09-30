@@ -21,19 +21,31 @@
 
             <div class="inventory-toolbar card shadow-sm">
                 <div class="inventory-toolbar-inner">
-                    <div class="input-group inventory-search-group">
-                        <span class="input-group-text inventory-search-icon">⌕</span>
-                        <input type="text" class="form-control inventory-search-input" placeholder="Buscar inventario por SKU, nombre o modelo..." />
-                    </div>
+                    <form method="get" class="d-flex w-100 gap-2 align-items-center">
+                        <div class="input-group inventory-search-group">
+                            <span class="input-group-text inventory-search-icon">⌕</span>
+                            <input type="text" name="q" value="@(ViewBag.Query ?? "")" class="form-control inventory-search-input" placeholder="Buscar inventario por SKU, nombre o modelo..." />
+                        </div>
 
-                    <div class="inventory-filters">
-                        <select class="form-select inventory-select">
-                            <option selected>Todas las categorías</option>
-                        </select>
-                        <select class="form-select inventory-select">
-                            <option selected>Todos los estados</option>
-                        </select>
-                    </div>
+                        <div class="inventory-filters d-flex gap-2">
+                            @Html.DropDownList("categoriaId",
+                                new SelectList((IEnumerable<Nexora.Models.Categoria>)ViewBag.Categorias, "Id", "Nombre", ViewBag.CategoriaSeleccionada),
+                                "Todas las categorías",
+                                new { @class = "form-select inventory-select" })
+
+                            @Html.DropDownList("estado",
+                                new SelectList(new[]
+                                {
+                                    new { Value = "activo", Text = "Activo" },
+                                    new { Value = "inactivo", Text = "Inactivo" }
+                                }, "Value", "Text", ViewBag.EstadoSeleccionado),
+                                "Todos los estados",
+                                new { @class = "form-select inventory-select" })
+
+                            <button type="submit" class="btn btn-sm btn-primary">Buscar</button>
+                            <a class="btn btn-sm btn-outline-secondary" href="@Url.Action("Index", "Inventario")">Limpiar</a>
+                        </div>
+                    </form>
                 </div>
             </div>
 

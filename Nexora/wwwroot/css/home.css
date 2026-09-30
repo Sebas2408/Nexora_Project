@@ -430,3 +430,32 @@
     .catalog-pagination .page-item.disabled .page-link {
         color: #b7c0d1;
     }
+
+/* Acciones del filtro de precio */
+.catalog-price-actions {
+    margin-top: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.catalog-price-actions .btn {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.78rem;
+    border-radius: 0.42rem;
+}
+
+@media (max-width: 575.98px) {
+    .catalog-price-range {
+        grid-template-columns: 1fr;
+    }
+
+    .catalog-price-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .catalog-price-actions .btn {
+        width: 100%;
+    }
+}

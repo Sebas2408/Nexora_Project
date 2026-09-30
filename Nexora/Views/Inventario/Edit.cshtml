@@ -36,27 +36,27 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label asp-for="Nombre" class="form-label"></label>
-                            <input asp-for="Nombre" class="form-control" />
+                            <input asp-for="Nombre" class="form-control" maxlength="200" autocomplete="off" />
                             <span asp-validation-for="Nombre" class="text-danger"></span>
                         </div>
                         <div class="col-md-6">
                             <label asp-for="SKU" class="form-label"></label>
-                            <input asp-for="SKU" class="form-control" />
+                            <input asp-for="SKU" class="form-control" maxlength="100" autocomplete="off" />
                             <span asp-validation-for="SKU" class="text-danger"></span>
                         </div>
                         <div class="col-md-6">
                             <label asp-for="Marca" class="form-label"></label>
-                            <input asp-for="Marca" class="form-control" />
+                            <input asp-for="Marca" class="form-control" maxlength="100" autocomplete="off" />
                             <span asp-validation-for="Marca" class="text-danger"></span>
                         </div>
                         <div class="col-md-6">
                             <label asp-for="Modelo" class="form-label"></label>
-                            <input asp-for="Modelo" class="form-control" />
+                            <input asp-for="Modelo" class="form-control" maxlength="100" autocomplete="off" />
                             <span asp-validation-for="Modelo" class="text-danger"></span>
                         </div>
                         <div class="col-12">
                             <label asp-for="Especificaciones" class="form-label"></label>
-                            <textarea asp-for="Especificaciones" class="form-control" rows="3"></textarea>
+                            <textarea asp-for="Especificaciones" class="form-control" rows="3" maxlength="2000"></textarea>
                             <span asp-validation-for="Especificaciones" class="text-danger"></span>
                         </div>
                         <partial name="_ProductoImagenInput" model="Model" />
@@ -76,18 +76,18 @@
                             <label asp-for="Precio" class="form-label"></label>
                             <div class="input-group">
                                 <span class="input-group-text">$</span>
-                                <input asp-for="Precio" class="form-control" />
+                                <input asp-for="Precio" class="form-control" type="number" min="0.01" max="9999999" step="0.01" inputmode="decimal" />
                             </div>
                             <span asp-validation-for="Precio" class="text-danger"></span>
                         </div>
                         <div class="col-md-4">
                             <label asp-for="Stock" class="form-label"></label>
-                            <input asp-for="Stock" class="form-control" />
+                            <input asp-for="Stock" class="form-control" type="number" min="0" max="1000000" step="1" inputmode="numeric" />
                             <span asp-validation-for="Stock" class="text-danger"></span>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4 inventory-warranty-field">
                             <label asp-for="GarantiaMeses" class="form-label"></label>
-                            <input asp-for="GarantiaMeses" class="form-control" />
+                            <input asp-for="GarantiaMeses" class="form-control" type="number" min="0" max="120" step="1" inputmode="numeric" />
                             <span asp-validation-for="GarantiaMeses" class="text-danger"></span>
                         </div>
                         <div class="col-md-6">

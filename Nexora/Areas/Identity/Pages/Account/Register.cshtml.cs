@@ -43,6 +43,7 @@ namespace Nexora.Areas.Identity.Pages.Account
             public string? Genero { get; set; }
 
             [DataType(DataType.Date)]
+            [Display(Name = "Fecha de nacimiento")]
             public DateTime? FechaNacimiento { get; set; }
 
             [Required]
@@ -70,6 +71,11 @@ namespace Nexora.Areas.Identity.Pages.Account
             // Log incoming input (avoid logging passwords)
             _logger.LogInformation("Register input: Email={Email}, Nombre={Nombre}, Apellido={Apellido}, Genero={Genero}, FechaNacimientoHasValue={HasDob}",
                 Input?.Email, Input?.Nombre, Input?.Apellido, Input?.Genero, Input != null && Input.FechaNacimiento.HasValue);
+
+            if (Input.FechaNacimiento.HasValue && Input.FechaNacimiento.Value.Date > DateTime.Today)
+            {
+                ModelState.AddModelError("Input.FechaNacimiento", "La fecha de nacimiento no puede ser futura.");
+            }
 
             if (!ModelState.IsValid)
             {

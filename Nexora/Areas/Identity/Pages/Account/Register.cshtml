@@ -110,7 +110,8 @@
 
                                 <input asp-for="Input.FechaNacimiento"
                                        class="form-control"
-                                       type="date" />
+                                       type="date"
+                                       max="@DateTime.Today.ToString("yyyy-MM-dd")" />
 
                                 <span asp-validation-for="Input.FechaNacimiento"
                                       class="text-danger small">

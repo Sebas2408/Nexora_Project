@@ -38,10 +38,18 @@
 
                 <div class="catalog-filter-group">
                     <h3 class="catalog-filter-label">Rango de precio</h3>
-                    <div class="catalog-price-range">
-                        <input type="text" class="form-control catalog-mini-input" placeholder="$ Min" />
-                        <input type="text" class="form-control catalog-mini-input" placeholder="$ Max" />
-                    </div>
+                    <form method="get" action="@Url.Action("Index", "Home")" class="catalog-price-range-form">
+                        <div class="catalog-price-range">
+                            <input type="number" name="precioMin" step="0.01" min="0" class="form-control catalog-mini-input" placeholder="$ Min" value="@(ViewBag.PrecioMin ?? "")" />
+                            <input type="number" name="precioMax" step="0.01" min="0" class="form-control catalog-mini-input" placeholder="$ Max" value="@(ViewBag.PrecioMax ?? "")" />
+                        </div>
+                        <input type="hidden" name="categoriaId" value="@(categoriaSeleccionada?.ToString() ?? "")" />
+                        <input type="hidden" name="q" value="@query" />
+                        <div class="catalog-price-actions d-flex align-items-center gap-2">
+                            <button type="submit" class="btn btn-sm btn-primary" aria-label="Aplicar filtro de precio" title="Aplicar">Aplicar</button>
+                            <a class="btn btn-sm btn-outline-secondary" href="@Url.Action("Index", "Home")" aria-label="Limpiar filtros" title="Limpiar">Limpiar</a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </aside>
@@ -56,12 +64,7 @@
                         </div>
                     </form>
 
-                    <div class="catalog-sort">
-                        <label class="catalog-sort-label" for="sortOrder">Ordenar por</label>
-                        <select id="sortOrder" class="form-select catalog-sort-select">
-                            <option selected>Mejor coincidencia</option>
-                        </select>
-                    </div>
+                    @* Se elimina el apartado de "Ordenar por" según solicitud *@
                 </div>
             </div>
 

@@ -47,6 +47,7 @@ namespace Nexora.ViewModels
 
         [Required, StringLength(100, MinimumLength = 6)]
         [DataType(DataType.Password)]
+        [Display(Name = "Contraseña")]
         public string Password { get; set; } = string.Empty;
 
         [Required, Compare(nameof(Password))]

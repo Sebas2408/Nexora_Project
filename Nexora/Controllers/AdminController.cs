@@ -449,6 +449,13 @@ namespace Nexora.Controllers
         public async Task<IActionResult> Analiticas(DateTime? desde, DateTime? hasta)
         {
             const int umbralStockBajo = 5;
+
+            if (hasta.HasValue && hasta.Value.Date > DateTime.Today)
+            {
+                ModelState.AddModelError(nameof(hasta), "La fecha final no puede ser futura.");
+                hasta = DateTime.Today;
+            }
+
             var pedidos = _db.Ordenes.AsNoTracking().AsQueryable();
             if (desde.HasValue)
             {

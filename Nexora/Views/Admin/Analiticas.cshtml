@@ -25,7 +25,7 @@
                 </div>
                 <div class="col-md-4">
                     <label asp-for="Hasta" class="form-label">Hasta</label>
-                    <input asp-for="Hasta" type="date" class="form-control" />
+                    <input asp-for="Hasta" type="date" max="@DateTime.Today.ToString("yyyy-MM-dd")" class="form-control" />
                 </div>
                 <div class="col-md-4 d-flex gap-2">
                     <button type="submit" class="btn btn-primary">Aplicar período</button>

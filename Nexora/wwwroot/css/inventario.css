@@ -126,6 +126,7 @@
   padding-top: 0.95rem;
   padding-bottom: 0.95rem;
   white-space: nowrap;
+  text-align: center;
 }
 
 .inventory-table tbody td {
@@ -353,6 +354,14 @@
   color: #34415a;
   font-size: 0.85rem;
   font-weight: 650;
+}
+
+.inventory-warranty-field {
+  padding-left: 1rem;
+}
+
+.inventory-warranty-field .form-label {
+  margin-bottom: 0.55rem;
 }
 
 .inventory-form .form-control,
