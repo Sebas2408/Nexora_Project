@@ -36,12 +36,7 @@
                     <ul class="navbar-nav ms-auto header-nav header-nav-right">
                         @if (User?.Identity?.IsAuthenticated ?? false)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link custom-nav-link" asp-area="Identity" asp-page="/Account/Manage/Index">Mi cuenta</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link custom-nav-link" asp-controller="Pedidos" asp-action="Index">Mis pedidos</a>
-                            </li>
+                            <partial name="_CuentaDropdown" />
 
                             @if (User.IsInRole("Administrador"))
                             {
@@ -57,11 +52,6 @@
                                 </li>
                             }
 
-                            <li class="nav-item">
-                                <form class="d-inline" asp-area="Identity" asp-page="/Account/Logout" method="post" id="logoutForm">
-                                    <button type="submit" class="btn btn-link nav-link custom-nav-link logout-button">Salir</button>
-                                </form>
-                            </li>
                         }
                         else
                         {

@@ -124,6 +124,18 @@ public sealed class UsuariosController : Controller
         var usuario = await _userManager.FindByIdAsync(id);
         if (usuario == null) return NotFound();
         ValidarRol(model.Rol);
+        var solicitaCambioPassword = !string.IsNullOrWhiteSpace(model.NuevaPassword) || !string.IsNullOrWhiteSpace(model.ConfirmarNuevaPassword);
+        if (solicitaCambioPassword)
+        {
+            if (string.IsNullOrWhiteSpace(model.NuevaPassword) || model.NuevaPassword.Length < 6)
+            {
+                ModelState.AddModelError(nameof(model.NuevaPassword), "La nueva contraseña debe tener al menos 6 caracteres.");
+            }
+            if (!string.Equals(model.NuevaPassword, model.ConfirmarNuevaPassword, StringComparison.Ordinal))
+            {
+                ModelState.AddModelError(nameof(model.ConfirmarNuevaPassword), "La contraseña y la confirmación no coinciden.");
+            }
+        }
         if (!string.Equals(usuario.Email, model.Email.Trim(), StringComparison.OrdinalIgnoreCase) && await _userManager.FindByEmailAsync(model.Email.Trim()) != null)
         {
             ModelState.AddModelError(nameof(model.Email), "Ya existe una cuenta con este correo electrónico.");
@@ -142,6 +154,16 @@ public sealed class UsuariosController : Controller
         {
             AgregarErrores(resultadoUsuario); await transaccion.RollbackAsync();
             return View("~/Views/Admin/EditarUsuario.cshtml", PrepararModelo(model));
+        }
+        if (solicitaCambioPassword)
+        {
+            var token = await _userManager.GeneratePasswordResetTokenAsync(usuario);
+            var resultadoPassword = await _userManager.ResetPasswordAsync(usuario, token, model.NuevaPassword!);
+            if (!resultadoPassword.Succeeded)
+            {
+                AgregarErrores(resultadoPassword); await transaccion.RollbackAsync();
+                return View("~/Views/Admin/EditarUsuario.cshtml", PrepararModelo(model));
+            }
         }
         var resultadoRol = await ReemplazarRolAsync(usuario, rolesActuales, model.Rol);
         if (!resultadoRol.Succeeded)

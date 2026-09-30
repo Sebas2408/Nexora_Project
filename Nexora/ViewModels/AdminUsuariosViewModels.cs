@@ -57,6 +57,14 @@ public sealed class EditarUsuarioAdminViewModel : UsuarioFormularioViewModel
 {
     [Required]
     public string Id { get; set; } = string.Empty;
+
+    [DataType(DataType.Password)]
+    [Display(Name = "Nueva contraseña")]
+    public string? NuevaPassword { get; set; }
+
+    [DataType(DataType.Password)]
+    [Display(Name = "Confirmar nueva contraseña")]
+    public string? ConfirmarNuevaPassword { get; set; }
 }
 
 public sealed class UsuarioDetalleAdminViewModel
